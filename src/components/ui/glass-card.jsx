@@ -19,9 +19,9 @@ const GlassCard = ({
   return (
     <div
       className={cn(
-        "relative rounded-xl backdrop-blur-md bg-white/20 dark:bg-black/20",
-        "border border-white/30 dark:border-white/10",
-        "shadow-lg hover:shadow-xl transition-all duration-300",
+        "relative rounded-lg backdrop-blur-md bg-white/40 dark:bg-black/40",
+        "border border-white/40 dark:border-white/10",
+        "shadow-sm hover:shadow-md transition-all duration-300",
         "overflow-hidden",
         className
       )}

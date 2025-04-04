@@ -21,7 +21,7 @@ const Navbar = ({
     <header className={cn("sticky top-0 z-50 w-full", className)} {...props}>
       <GlassCard className="px-4 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
             Food Explorer
           </span>
         </Link>
@@ -30,25 +30,25 @@ const Navbar = ({
           <div className="hidden md:flex items-center space-x-4">
             <Link 
               to="/" 
-              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 transition-colors"
             >
               Home
             </Link>
             <Link 
               to="/search" 
-              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 transition-colors"
             >
               Search
             </Link>
             <Link 
               to="/barcode" 
-              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 transition-colors"
             >
               Barcode
             </Link>
             <Link 
               to="/filter" 
-              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 transition-colors"
             >
               Filter
             </Link>
@@ -56,7 +56,7 @@ const Navbar = ({
           
           <button 
             onClick={toggleTheme}
-            className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
             aria-label="Toggle dark mode"
           >
             {theme === 'dark' ? (

@@ -3,11 +3,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './lib/theme-context';
 import { queryClientConfig } from './lib/api-config';
-import MainNav from './components/ui/main-nav';
+import AppLayout from './components/ui/app-layout';
 import './index.css'; // Global styles
 
 // Lazy load pages for better performance
-const HomePage = lazy(() => import('./pages/home-new'));
+const HomePage = lazy(() => import('./pages/home-redesigned'));
 const SearchPage = lazy(() => import('./pages/search-new'));
 const BarcodePage = lazy(() => import('./pages/barcode-new'));
 const FilterPage = lazy(() => import('./pages/filter'));
@@ -64,27 +64,19 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <Router>
-          <div className="min-h-screen flex flex-col bg-background text-foreground">
-            <MainNav />
+          <AppLayout>
             <ErrorBoundary>
-              <main className="flex-grow">
-                <Suspense fallback={<LoadingFallback />}>
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/search" element={<SearchPage />} />
-                    <Route path="/barcode" element={<BarcodePage />} />
-                    <Route path="/filter" element={<FilterPage />} />
-                    <Route path="/product/:id" element={<ProductDetailPage />} />
-                  </Routes>
-                </Suspense>
-              </main>
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/search" element={<SearchPage />} />
+                  <Route path="/barcode" element={<BarcodePage />} />
+                  <Route path="/filter" element={<FilterPage />} />
+                  <Route path="/product/:id" element={<ProductDetailPage />} />
+                </Routes>
+              </Suspense>
             </ErrorBoundary>
-            <footer className="w-full py-6 text-center text-sm text-muted-foreground border-t">
-              <div className="container mx-auto">
-                <p>Food Product Explorer &copy; {new Date().getFullYear()}</p>
-              </div>
-            </footer>
-          </div>
+          </AppLayout>
         </Router>
       </ThemeProvider>
     </QueryClientProvider>

@@ -1,10 +1,12 @@
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from './lib/theme-context';
+import { ThemeProvider, useTheme } from './lib/theme-context';
 import { queryClientConfig } from './lib/api-config';
 import MainNav from './components/ui/main-nav';
 import './index.css'; // Global styles
+import { applyGlass } from './lib/glassmorphism';
+import { cn } from './lib/utils';
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('./pages/home-new'));
@@ -59,12 +61,25 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+// Footer component with theme context access
+const AppFooter = () => {
+  const { theme } = useTheme();
+  
+  return (
+    <footer className={cn("w-full py-6 text-center text-sm text-muted-foreground border-t", applyGlass('nav', theme))}>
+      <div className="container mx-auto">
+        <p>Food Product Explorer &copy; {new Date().getFullYear()}</p>
+      </div>
+    </footer>
+  );
+};
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <Router>
-          <div className="min-h-screen flex flex-col bg-background text-foreground">
+          <div className="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden">
             <MainNav />
             <ErrorBoundary>
               <main className="flex-grow">
@@ -79,11 +94,7 @@ function App() {
                 </Suspense>
               </main>
             </ErrorBoundary>
-            <footer className="w-full py-6 text-center text-sm text-muted-foreground border-t">
-              <div className="container mx-auto">
-                <p>Food Product Explorer &copy; {new Date().getFullYear()}</p>
-              </div>
-            </footer>
+            <AppFooter />
           </div>
         </Router>
       </ThemeProvider>

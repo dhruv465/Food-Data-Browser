@@ -19,9 +19,9 @@ const GlassContainer = ({
   return (
     <div
       className={cn(
-        "relative rounded-2xl backdrop-blur-lg bg-white/10 dark:bg-black/10",
-        "border border-white/20 dark:border-white/5",
-        "shadow-xl p-6",
+        "relative rounded-xl backdrop-blur-md bg-white/30 dark:bg-black/30",
+        "border border-white/30 dark:border-white/10",
+        "shadow-md hover:shadow-lg transition-all duration-300 p-6",
         "overflow-hidden",
         className
       )}

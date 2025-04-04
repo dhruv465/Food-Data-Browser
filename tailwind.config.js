@@ -43,11 +43,30 @@ export default {
 			DEFAULT: "hsl(var(--card))",
 			foreground: "hsl(var(--card-foreground))",
 		  },
+		  glass: {
+			background: "var(--glass-background)",
+			border: "var(--glass-border)",
+			shadow: "var(--glass-shadow)",
+		  },
 		},
 		borderRadius: {
 		  lg: "var(--radius)",
 		  md: "calc(var(--radius) - 2px)",
 		  sm: "calc(var(--radius) - 4px)",
+		},
+		backdropBlur: {
+		  xs: '2px',
+		  sm: '4px',
+		  md: 'var(--glass-blur)',
+		  lg: '12px',
+		  xl: '16px',
+		},
+		backgroundImage: {
+		  'gradient-glass-1': 'var(--gradient-1)',
+		  'gradient-glass-2': 'var(--gradient-2)',
+		},
+		boxShadow: {
+		  glass: 'var(--glass-shadow)',
 		},
 	  },
 	},
