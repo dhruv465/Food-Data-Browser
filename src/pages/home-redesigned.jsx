@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { getProductsByCategory, getCategories, searchProductsByName } from '../lib/api/foodApi';
-import PageLayout, { PageHeader, PageContent, PageSection, PageGrid } from '../components/ui/page-layout';
-import Dashboard, { DashboardHeader, DashboardGrid, DashboardCard, QuickLink } from '../components/ui/dashboard';
-import ProductGrid from '../components/product/product-grid';
-import SearchBar from '../components/product/search-bar';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CategorySelector from '../components/product/category-selector';
 import ProductCardNew from '../components/product/product-card-new';
+import ProductGrid from '../components/product/product-grid';
+import SearchBar from '../components/product/search-bar';
+import { DashboardCard, DashboardGrid, DashboardHeader, QuickLink } from '../components/ui/dashboard';
+import PageLayout, { PageSection } from '../components/ui/page-layout';
+import { getCategories, getProductsByCategory, searchProductsByName } from '../lib/api/foodApi';
 
 /**
  * HomeRedesigned component - Redesigned main landing page with dashboard layout
@@ -71,7 +71,7 @@ const HomeRedesigned = () => {
     enabled: !!selectedCategory,
   });
 
-  // Fetch featured products (using a search for organic products as an example)
+  // Fetch featured products (organic products)
   const { 
     data: featuredProductsData, 
     isLoading: featuredProductsLoading,
@@ -80,17 +80,38 @@ const HomeRedesigned = () => {
     queryKey: ['featuredProducts'],
     queryFn: () => searchProductsByName('organic', 1, 4),
   });
+  
+  // Fetch vegan products count
+  const {
+    data: veganProductsData,
+    isLoading: veganProductsLoading,
+    isError: veganProductsError
+  } = useQuery({
+    queryKey: ['veganProducts'],
+    queryFn: () => searchProductsByName('vegan', 1, 4),
+  });
 
   // Extract products from API response
   const categoryProducts = categoryProductsData?.products || [];
   const featuredProducts = featuredProductsData?.products || [];
 
-  // Sample stats for dashboard - these could also be fetched from an API
-  // but for now we'll keep them static as they're UI elements
+  // Calculate stats from API data
+  // Get total products count (using static value for now as we don't have a total count API endpoint)
+  const totalProductsCount = 10483;
+  
+  // Get organic products count from the featured products data (search for 'organic')
+  const organicProductsCount = featuredProductsData?.count || 0;
+  const organicPercentage = organicProductsCount > 0 ? Math.round((organicProductsCount / totalProductsCount) * 100) : 0;
+  
+  // Get vegan products count from the vegan products data
+  const veganProductsCount = veganProductsData?.count || 0;
+  const veganPercentage = veganProductsCount > 0 ? Math.round((veganProductsCount / totalProductsCount) * 100) : 0;
+  
+  // Dashboard stats with dynamic data where available
   const dashboardStats = [
     {
       label: 'Total Products',
-      value: '10,483',
+      value: totalProductsCount.toLocaleString(),
       description: 'Products in database',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -111,8 +132,8 @@ const HomeRedesigned = () => {
     },
     {
       label: 'Organic Products',
-      value: '2,845',
-      description: '27% of database',
+      value: organicProductsCount.toLocaleString(),
+      description: `${organicPercentage}% of database`,
       trend: 'up',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -122,8 +143,8 @@ const HomeRedesigned = () => {
     },
     {
       label: 'Vegan Products',
-      value: '1,932',
-      description: '18% of database',
+      value: veganProductsCount.toLocaleString(),
+      description: `${veganPercentage}% of database`,
       trend: 'up',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
