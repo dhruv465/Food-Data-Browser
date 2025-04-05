@@ -1,9 +1,6 @@
 import axios from 'axios';
 import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE } from '../api-config';
 
-// Base URL for the OpenFoodFacts API is handled by the proxy in vite.config.ts
-// No need for BASE_URL or CORS_PROXY here anymore for constructing request URLs.
-
 // Create axios instance
 // BaseURL is not set here, as we use relative paths for the proxy
 const api = axios.create({
@@ -40,8 +37,8 @@ api.interceptors.response.use(
       } else if (error.response.status >= 500) {
         error.message = ERROR_MESSAGES.SERVER_ERROR;
       } else {
-         // Include status code for other client errors
-         error.message = `API request failed with status ${error.response.status}`;
+        // Include status code for other client errors
+        error.message = `API request failed with status ${error.response.status}`;
       }
     } else if (error.request) {
       // The request was made but no response was received
