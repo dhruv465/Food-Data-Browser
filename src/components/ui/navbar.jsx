@@ -114,34 +114,34 @@ const Navbar = ({
         </nav>
       </GlassCard>
       
-      {/* Mobile navigation menu - would be expanded with state management in a full implementation */}
+      {/* Mobile navigation menu */}
       <div className="md:hidden hidden">
-        <GlassCard className="mt-2 p-4 flex flex-col space-y-3">
+        <div className="border-t px-4 py-4 space-y-3">
           <Link 
             to="/" 
-            className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+            className="block text-base font-medium text-foreground/60 hover:text-foreground transition-colors"
           >
             Home
           </Link>
           <Link 
             to="/search" 
-            className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+            className="block text-base font-medium text-foreground/60 hover:text-foreground transition-colors"
           >
             Search
           </Link>
           <Link 
             to="/barcode" 
-            className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+            className="block text-base font-medium text-foreground/60 hover:text-foreground transition-colors"
           >
-            Barcode
+            Scan Barcode
           </Link>
           <Link 
             to="/filter" 
-            className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+            className="block text-base font-medium text-foreground/60 hover:text-foreground transition-colors"
           >
-            Filter
+            Browse Foods
           </Link>
-        </GlassCard>
+        </div>
       </div>
     </header>
   );

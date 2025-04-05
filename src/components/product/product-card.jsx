@@ -19,15 +19,15 @@ const ProductCardNew = ({ product, className }) => {
   const {
     id,
     product_name,
+    brands,
     image_url,
     image_front_url,
     image_front_small_url,
-    brands,
     categories_tags = [],
     nutrition_grades,
-    ecoscore_grade,
-    nova_group,
+    ingredients_text,
   } = product;
+
 
   // Format category for display
   const category = categories_tags[0]?.replace('en:', '') || 'Unknown';
@@ -94,9 +94,9 @@ const ProductCardNew = ({ product, className }) => {
       </div>
       
       {/* Product info */}
-      <div className="flex flex-1 flex-col space-y-1.5 p-4">
+      <div className="flex flex-1 flex-col space-y-2 p-4">
         {/* Category */}
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground uppercase tracking-wide">
           {formattedCategory}
         </p>
         
@@ -105,28 +105,25 @@ const ProductCardNew = ({ product, className }) => {
           {truncateText(product_name || 'Unknown product')}
         </h3>
         
-        {/* Brand */}
-        <p className="text-sm text-muted-foreground">
-          {brandName}
-        </p>
+        {/* Ingredients */}
+        {ingredients_text && (
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {truncateText(ingredients_text, 100)}
+          </p>
+        )}
         
-        {/* Product scores */}
-        <div className="mt-auto pt-3 flex items-center gap-2">
-          {ecoscore_grade && (
+        {/* Nutrition Grade */}
+        <div className="mt-auto pt-2">
+          {nutrition_grades && (
             <div 
-              className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
-              title="Eco Score"
+              className={cn(
+                "text-sm px-3 py-1 rounded-full inline-flex items-center",
+                getNutritionBadgeClass(nutrition_grades)
+              )}
             >
-              Eco: {ecoscore_grade.toUpperCase()}
-            </div>
-          )}
-          
-          {nova_group && (
-            <div 
-              className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
-              title="NOVA Group (Food Processing Level)"
-            >
-              NOVA: {nova_group}
+              <span className="text-white font-medium">
+                Nutrition Grade: {nutrition_grades.toUpperCase()}
+              </span>
             </div>
           )}
         </div>
