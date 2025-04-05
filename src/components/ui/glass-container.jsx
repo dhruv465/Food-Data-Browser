@@ -2,15 +2,15 @@ import React from 'react';
 import { cn } from '../../lib/utils';
 
 /**
- * GlassContainer component with glassmorphism effect for page sections
+ * Container component with modern flat design for page sections
  * 
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Container content
  * @param {string} props.className - Additional CSS classes
  * @param {Object} props.style - Additional inline styles
- * @returns {JSX.Element} - GlassContainer component
+ * @returns {JSX.Element} - Container component
  */
-const GlassContainer = ({ 
+const Container = ({ 
   children, 
   className, 
   style,
@@ -19,17 +19,13 @@ const GlassContainer = ({
   return (
     <div
       className={cn(
-        "relative rounded-xl backdrop-blur-md bg-white/30 dark:bg-black/30",
-        "border border-white/30 dark:border-white/10",
+        "relative rounded-xl bg-white dark:bg-zinc-900",
+        "border border-gray-100 dark:border-zinc-800",
         "shadow-md hover:shadow-lg transition-all duration-300 p-6",
         "overflow-hidden",
         className
       )}
-      style={{
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        ...style
-      }}
+      style={style}
       {...props}
     >
       {children}
@@ -37,4 +33,6 @@ const GlassContainer = ({
   );
 };
 
-export default GlassContainer;
+// Export as both Container (new name) and GlassContainer (for backward compatibility)
+export { Container };
+export default Container;

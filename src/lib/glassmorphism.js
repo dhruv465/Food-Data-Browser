@@ -1,66 +1,75 @@
 /**
- * Glassmorphism utility functions and constants
- * Provides consistent styling for glassmorphism effects across the application
+ * Modern UI utility functions and constants
+ * Provides consistent styling for flat design effects across the application
  */
 
 import { cn } from './utils';
 
-// Base glassmorphism styles for different color modes
-export const glassBase = {
-  light: 'bg-white/70 backdrop-blur-md border border-white/30 shadow-lg',
-  dark: 'bg-zinc-900/70 backdrop-blur-md border border-zinc-800/50 shadow-lg'
+// Base flat design styles for different color modes
+export const flatBase = {
+  light: 'bg-white border border-gray-100 shadow-sm',
+  dark: 'bg-zinc-900 border border-zinc-800 shadow-md'
 };
 
-// Glassmorphism variants for different components
-export const glassVariants = {
+// Flat design variants for different components
+export const flatVariants = {
   card: {
-    light: 'bg-white/60 backdrop-blur-md border border-white/30 shadow-lg',
-    dark: 'bg-zinc-900/60 backdrop-blur-md border border-zinc-800/50 shadow-lg'
+    light: 'bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow',
+    dark: 'bg-zinc-900 border border-zinc-800 shadow-md hover:shadow-lg transition-shadow'
   },
   nav: {
-    light: 'bg-white/80 backdrop-blur-md border-b border-white/30 shadow-sm',
-    dark: 'bg-zinc-900/80 backdrop-blur-md border-b border-zinc-800/50 shadow-sm'
+    light: 'bg-white border-b border-gray-100 shadow-sm',
+    dark: 'bg-zinc-900 border-b border-zinc-800 shadow-md'
   },
   modal: {
-    light: 'bg-white/80 backdrop-blur-md border border-white/30 shadow-xl',
-    dark: 'bg-zinc-900/80 backdrop-blur-md border border-zinc-800/50 shadow-xl'
+    light: 'bg-white border border-gray-100 shadow-lg',
+    dark: 'bg-zinc-900 border border-zinc-800 shadow-xl'
   },
   input: {
-    light: 'bg-white/50 backdrop-blur-sm border border-white/30',
-    dark: 'bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50'
+    light: 'bg-gray-50 border border-gray-200',
+    dark: 'bg-zinc-800 border border-zinc-700'
+  },
+  sidebar: {
+    light: 'bg-white border-r border-gray-100',
+    dark: 'bg-zinc-900 border-r border-zinc-800'
   }
 };
 
 /**
- * Apply glassmorphism effect to an element based on theme
+ * Apply flat design effect to an element based on theme
  * 
- * @param {string} variant - The variant of glassmorphism to apply (card, nav, modal, input)
+ * @param {string} variant - The variant of flat design to apply (card, nav, modal, input)
  * @param {string} theme - The current theme (light or dark)
  * @param {string} className - Additional CSS classes
- * @returns {string} - Combined CSS classes for glassmorphism effect
+ * @returns {string} - Combined CSS classes for flat design effect
  */
 export const applyGlass = (variant = 'card', theme = 'light', className = '') => {
-  const baseStyles = glassVariants[variant]?.[theme] || glassBase[theme];
+  const baseStyles = flatVariants[variant]?.[theme] || flatBase[theme];
   return cn(baseStyles, className);
 };
 
 /**
- * Get glassmorphism styles for a specific variant and theme
+ * Get flat design styles for a specific variant and theme
  * 
- * @param {string} variant - The variant of glassmorphism to apply
+ * @param {string} variant - The variant of flat design to apply
  * @param {string} theme - The current theme (light or dark)
- * @returns {string} - CSS classes for glassmorphism effect
+ * @returns {string} - CSS classes for flat design effect
  */
 export const getGlassStyles = (variant = 'card', theme = 'light') => {
-  return glassVariants[variant]?.[theme] || glassBase[theme];
+  return flatVariants[variant]?.[theme] || flatBase[theme];
 };
 
-// Additional glassmorphism-specific utility classes
-export const glassUtils = {
-  hover: 'transition-all hover:bg-opacity-80 hover:shadow-md',
-  active: 'active:bg-opacity-90 active:shadow-sm',
-  glow: {
-    light: 'after:absolute after:inset-0 after:rounded-lg after:bg-gradient-to-b after:from-white/10 after:to-transparent after:opacity-50 after:blur-sm',
-    dark: 'after:absolute after:inset-0 after:rounded-lg after:bg-gradient-to-b after:from-zinc-700/10 after:to-transparent after:opacity-50 after:blur-sm'
+// Additional flat design-specific utility classes
+export const flatUtils = {
+  hover: 'transition-all hover:shadow-md dark:hover:shadow-lg',
+  active: 'active:shadow-sm',
+  accent: {
+    light: 'border-l-4 border-l-primary',
+    dark: 'border-l-4 border-l-primary'
   }
 };
+
+// Keep the original function names for backward compatibility
+export const glassBase = flatBase;
+export const glassVariants = flatVariants;
+export const glassUtils = flatUtils;

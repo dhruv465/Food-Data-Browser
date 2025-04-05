@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE } from '../api-config';
+import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT } from '../api-config';
+// Removed mock data imports as we no longer want to use fallback mock data
 
 // Create axios instance
 // BaseURL is not set here, as we use relative paths for the proxy
@@ -9,6 +10,41 @@ const api = axios.create({
   },
   timeout: 10000, // 10 seconds timeout
 });
+
+/**
+ * Utility function to retry a failed API call with exponential backoff
+ * @param {Function} apiCall - The API call function to retry
+ * @param {Array} args - Arguments to pass to the API call function
+ * @param {number} retries - Number of retries remaining
+ * @param {number} delay - Delay between retries in ms
+ * @returns {Promise} - Promise with the response data or error
+ */
+const retryApiCall = async (apiCall, args, retries = DEFAULT_RETRY_COUNT, delay = 1000) => {
+  try {
+    return await apiCall(...args);
+  } catch (error) {
+    if (retries > 0 && (error.message === ERROR_MESSAGES.NETWORK_ERROR || error.code === 'ECONNREFUSED')) {
+      console.log(`API call failed, retrying... (${retries} retries left)`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return retryApiCall(apiCall, args, retries - 1, delay * 2); // Exponential backoff
+    }
+    throw error;
+  }
+};
+
+/**
+ * Check if the API is available
+ * @returns {Promise<boolean>} - Promise that resolves to true if API is available, false otherwise
+ */
+const checkApiAvailability = async () => {
+  try {
+    await api.get('/offapi/categories.json', { timeout: 5000 });
+    return true;
+  } catch (error) {
+    console.error('API availability check failed:', error.message);
+    return false;
+  }
+};
 
 // Request interceptor for API calls
 api.interceptors.request.use(
@@ -65,13 +101,25 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
     console.error("getProductsByCategory called without a category.");
     return Promise.reject(new Error("Category is required.")); // Prevent API call without category
   }
+  
   try {
-    // Use the proxied path '/offapi/' defined in vite.config.ts
-    const response = await api.get(`/offapi/category/${category}.json?page=${page}&page_size=${pageSize}`);
-    return response.data;
+    // Check if API is available
+    const apiAvailable = await checkApiAvailability();
+    
+    if (!apiAvailable) {
+      // If API is not available, throw an error instead of using mock data
+      throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
+    }
+    
+    // Try to get data from API with retry mechanism
+    const apiCallFn = async () => {
+      const response = await api.get(`/offapi/category/${category}.json?page=${page}&page_size=${pageSize}`);
+      return response.data;
+    };
+    return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
-    console.error(`Error fetching products for category "${category}":`, error);
-    // Re-throw the error after logging so React Query handles it
+    console.error(`Error in getProductsByCategory for "${category}":`, error);
+    // Propagate the error to the UI instead of returning mock data
     throw error;
   }
 };
@@ -85,12 +133,51 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
  */
 export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFAULT_PAGE_SIZE) => {
   try {
+    // Check if API is available
+    const apiAvailable = await checkApiAvailability();
+    
+    if (!apiAvailable) {
+      // If API is not available, throw an error instead of using mock data
+      throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
+    }
+    
+    // Try to get data from API with retry mechanism
     const encodedSearchTerm = encodeURIComponent(searchTerm);
-    // Use the proxied path '/offapi/' defined in vite.config.ts
-    const response = await api.get(`/offapi/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`);
-    return response.data;
+    const apiCallFn = async () => {
+      const response = await api.get(`/offapi/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`);
+      return response.data;
+    };
+    return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
-    console.error('Error searching products by name:', error);
+    console.error(`Error in searchProductsByName for "${searchTerm}":`, error);
+    // Propagate the error to the UI instead of returning mock data
+    throw error;
+  }
+};
+
+/**
+ * Get categories
+ * @returns {Promise} - Promise with the response data
+ */
+export const getCategories = async () => {
+  try {
+    // Check if API is available
+    const apiAvailable = await checkApiAvailability();
+    
+    if (!apiAvailable) {
+      // If API is not available, throw an error instead of using mock data
+      throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
+    }
+    
+    // Try to get data from API with retry mechanism
+    const apiCallFn = async () => {
+      const response = await api.get('/offapi/categories.json');
+      return response.data;
+    };
+    return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
+  } catch (error) {
+    console.error('Error in getCategories:', error);
+    // Propagate the error to the UI instead of returning mock data
     throw error;
   }
 };
@@ -101,28 +188,29 @@ export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFA
  * @returns {Promise} - Promise with the response data
  */
 export const getProductByBarcode = async (barcode) => {
-  try {
-    // Use the proxied path '/offapi/' defined in vite.config.ts
-    const response = await api.get(`/offapi/api/v0/product/${barcode}.json`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching product by barcode:', error);
-    throw error;
+  if (!barcode) {
+    console.error("getProductByBarcode called without a barcode.");
+    return Promise.reject(new Error("Barcode is required.")); // Prevent API call without barcode
   }
-};
-
-/**
- * Get all available categories
- * @returns {Promise} - Promise with the response data
- */
-export const getCategories = async () => {
+  
   try {
-    // Use the proxied path '/offapi/' defined in vite.config.ts
-    const response = await api.get(`/offapi/categories.json`);
-    // The categories endpoint returns an object with a 'tags' array
-    return response.data;
+    // Check if API is available
+    const apiAvailable = await checkApiAvailability();
+    
+    if (!apiAvailable) {
+      // If API is not available, throw an error instead of using mock data
+      throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
+    }
+    
+    // Try to get data from API with retry mechanism
+    const apiCallFn = async () => {
+      const response = await api.get(`/offapi/api/v0/product/${barcode}.json`);
+      return response.data;
+    };
+    return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error(`Error in getProductByBarcode for "${barcode}":`, error);
+    // Propagate the error to the UI instead of returning mock data
     throw error;
   }
 };

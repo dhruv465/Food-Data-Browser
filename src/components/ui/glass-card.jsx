@@ -2,15 +2,15 @@ import React from 'react';
 import { cn } from '../../lib/utils';
 
 /**
- * GlassCard component with glassmorphism effect
+ * Card component with modern flat design
  * 
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Card content
  * @param {string} props.className - Additional CSS classes
  * @param {Object} props.style - Additional inline styles
- * @returns {JSX.Element} - GlassCard component
+ * @returns {JSX.Element} - Card component
  */
-const GlassCard = ({ 
+const Card = ({ 
   children, 
   className, 
   style,
@@ -19,17 +19,13 @@ const GlassCard = ({
   return (
     <div
       className={cn(
-        "relative rounded-lg backdrop-blur-md bg-white/40 dark:bg-black/40",
-        "border border-white/40 dark:border-white/10",
-        "shadow-sm hover:shadow-md transition-all duration-300",
+        "relative rounded-lg bg-white dark:bg-zinc-900",
+        "border border-gray-100 dark:border-zinc-800",
+        "shadow-sm hover:shadow-md dark:shadow-md dark:hover:shadow-lg transition-all duration-300",
         "overflow-hidden",
         className
       )}
-      style={{
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        ...style
-      }}
+      style={style}
       {...props}
     >
       {children}
@@ -37,4 +33,6 @@ const GlassCard = ({
   );
 };
 
-export default GlassCard;
+// Export as both Card (new name) and GlassCard (for backward compatibility)
+export { Card };
+export default Card;

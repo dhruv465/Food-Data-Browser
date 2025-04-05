@@ -1,22 +1,36 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { searchProductsByName } from '../lib/api/foodApi';
+import Layout, { PageHeader, PageContent, PageSection } from '../components/ui/layout';
+import SearchBar from '../components/product/search-bar';
 import ProductCard from '../components/product/product-card';
-import ProductSkeleton from '../components/product/product-skeleton';
-import GlassContainer from '../components/ui/glass-container';
-import GlassCard from '../components/ui/glass-card';
+import { Button } from '../components/ui/button';
 
 /**
- * SearchPage component - Page for searching products
+ * SearchPage component - Redesigned search page
  * 
  * @returns {JSX.Element} - SearchPage component
  */
 const SearchPage = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialSearchTerm = queryParams.get('q') || '';
+  
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(initialSearchTerm);
   const [page, setPage] = useState(1);
   const [allProducts, setAllProducts] = useState([]);
   const PAGE_SIZE = 24;
+
+  // Update search term when URL query parameter changes
+  useEffect(() => {
+    const newSearchTerm = queryParams.get('q') || '';
+    setSearchTerm(newSearchTerm);
+    setDebouncedSearchTerm(newSearchTerm);
+    setPage(1);
+    setAllProducts([]);
+  }, [location.search]);
 
   // Debounce search term to prevent excessive API calls
   useEffect(() => {
@@ -30,7 +44,7 @@ const SearchPage = () => {
   }, [searchTerm]);
 
   // Fetch products using React Query
-  const { data, isLoading, isError, error, isFetching } = useQuery({
+  const { data, isLoading, isError, error, isFetching, isPreviousData } = useQuery({
     queryKey: ['search', debouncedSearchTerm, page],
     queryFn: () => searchProductsByName(debouncedSearchTerm, page, PAGE_SIZE),
     enabled: debouncedSearchTerm.length > 2, // Only search when term is at least 3 characters
@@ -48,6 +62,11 @@ const SearchPage = () => {
     }
   }, [data, page]);
 
+  // Handle search submission
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+  };
+
   // Handle load more button click
   const handleLoadMore = () => {
     setPage(prevPage => prevPage + 1);
@@ -56,107 +75,126 @@ const SearchPage = () => {
   // Render loading skeletons
   const renderSkeletons = () => {
     return Array(8).fill(0).map((_, index) => (
-      <div key={`skeleton-${index}`} className="w-full">
-        <ProductSkeleton />
+      <div key={`skeleton-${index}`} className="rounded-lg border bg-card p-4 shadow-sm">
+        <div className="aspect-square w-full bg-muted animate-pulse rounded-md"></div>
+        <div className="mt-3 space-y-2">
+          <div className="h-2 w-16 bg-muted animate-pulse rounded"></div>
+          <div className="h-4 w-full bg-muted animate-pulse rounded"></div>
+          <div className="h-3 w-24 bg-muted animate-pulse rounded"></div>
+        </div>
       </div>
     ));
   };
 
-  // Check if there are more products to load
-  const hasMore = data?.page && data?.page_count 
-    ? data.page < data.page_count 
-    : false;
-
   return (
-    <div className="space-y-8">
-      <section className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Search Food Products
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          Search for any food product by name to discover detailed nutritional information.
-        </p>
-      </section>
+    <Layout>
+      <PageHeader
+        title="Search Products"
+        description="Search for food products by name, brand, or ingredients."
+      />
       
-      <GlassContainer className="p-6 mb-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search for food products..."
-              className="w-full p-4 pr-12 rounded-xl bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-white/30 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-5 w-5" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
-                />
-              </svg>
-            </div>
-          </div>
-          
-          {debouncedSearchTerm && debouncedSearchTerm.length < 3 && (
-            <p className="mt-2 text-sm text-gray-500">
-              Please enter at least 3 characters to search
+      <div className="w-full max-w-xl mx-auto mb-8">
+        <SearchBar 
+          onSearch={handleSearch} 
+          initialValue={searchTerm} 
+        />
+      </div>
+      
+      <PageSection>
+        {/* Search instructions */}
+        {!debouncedSearchTerm && (
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold mb-2">Start Searching</h2>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Enter at least 3 characters to search for products by name, brand, or ingredients.
             </p>
-          )}
-        </div>
-      </GlassContainer>
-      
-      {debouncedSearchTerm.length > 2 && (
-        <GlassContainer className="p-6">
-          <h2 className="text-2xl font-bold mb-6">
-            {isLoading ? 'Searching...' : `Results for "${debouncedSearchTerm}"`}
-          </h2>
-          
-          {isError && (
-            <div className="text-red-500 text-center mb-4">
-              Error: {error?.message || 'Failed to load search results'}
-            </div>
-          )}
-          
-          {!isLoading && !isError && allProducts.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-lg text-gray-500">No products found for "{debouncedSearchTerm}"</p>
-              <p className="text-sm text-gray-400 mt-2">Try a different search term</p>
-            </div>
-          )}
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {allProducts.map(product => (
-              <div key={product.id} className="w-full">
-                <ProductCard product={product} />
-              </div>
-            ))}
-            
-            {(isLoading || isFetching) && renderSkeletons()}
           </div>
-          
-          {!isLoading && !isError && hasMore && (
-            <div className="mt-8 text-center">
-              <button
-                onClick={handleLoadMore}
-                disabled={isFetching}
-                className="px-6 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors disabled:opacity-50"
-              >
-                {isFetching ? 'Loading...' : 'Load More'}
-              </button>
+        )}
+        
+        {/* Search too short warning */}
+        {debouncedSearchTerm && debouncedSearchTerm.length < 3 && (
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold mb-2">Search term too short</h2>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Please enter at least 3 characters to search.
+            </p>
+          </div>
+        )}
+        
+        {/* Search results */}
+        {debouncedSearchTerm && debouncedSearchTerm.length >= 3 && (
+          <div className="space-y-6">
+            {/* Results count */}
+            {!isLoading && !isError && data?.products && (
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  {data.count > 0 
+                    ? `Found ${data.count} products matching "${debouncedSearchTerm}"` 
+                    : `No products found matching "${debouncedSearchTerm}"`
+                  }
+                </p>
+              </div>
+            )}
+            
+            {/* Products grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {/* Render products */}
+              {allProducts.map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+              
+              {/* Render skeletons while loading */}
+              {(isLoading || (isFetching && isPreviousData && page === 1)) && renderSkeletons()}
             </div>
-          )}
-        </GlassContainer>
-      )}
-    </div>
+            
+            {/* Load more button */}
+            {data?.products?.length > 0 && data?.page < data?.page_count && (
+              <div className="mt-8 text-center">
+                <Button
+                  onClick={handleLoadMore}
+                  disabled={isFetching}
+                  variant="outline"
+                  className="min-w-[150px]"
+                >
+                  {isFetching ? (
+                    <>
+                      <svg className="mr-2 h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Loading...
+                    </>
+                  ) : (
+                    'Load More'
+                  )}
+                </Button>
+              </div>
+            )}
+            
+            {/* No results */}
+            {!isLoading && !isFetching && debouncedSearchTerm.length >= 3 && allProducts.length === 0 && (
+              <div className="text-center py-8">
+                <h2 className="text-xl font-semibold mb-2">No products found</h2>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Try a different search term or check your spelling.
+                </p>
+              </div>
+            )}
+            
+            {/* Error state */}
+            {isError && !isLoading && (
+              <div className="rounded-lg border bg-card p-6 text-center">
+                <h3 className="text-lg font-medium mb-2">Error loading products</h3>
+                <p className="text-muted-foreground mb-4">{error?.message || 'Failed to load products. Please try again.'}</p>
+                <Button onClick={() => setPage(1)} variant="outline">
+                  Retry
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </PageSection>
+    </Layout>
   );
 };
 

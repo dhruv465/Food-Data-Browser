@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../lib/theme-context';
 import { applyGlass } from '../../lib/glassmorphism';
+import ProductCardNew from './product-card';
 
 /**
  * ProductGrid component - Displays products in a responsive grid layout
@@ -60,7 +61,7 @@ const ProductGrid = ({
       className
     )} {...props}>
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCardNew key={product.id} product={product} />
       ))}
     </div>
   );
