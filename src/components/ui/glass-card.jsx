@@ -1,8 +1,10 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
+import { useTheme } from '../../lib/theme-context';
+import { applyGlass } from '../../lib/glassmorphism';
 
 /**
- * Card component with modern flat design
+ * Card component with glassmorphism design
  * 
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Card content
@@ -10,19 +12,19 @@ import { cn } from '../../lib/utils';
  * @param {Object} props.style - Additional inline styles
  * @returns {JSX.Element} - Card component
  */
-const Card = ({ 
+const GlassCard = ({ 
   children, 
   className, 
   style,
   ...props 
 }) => {
+  const { theme } = useTheme();
+  
   return (
     <div
       className={cn(
-        "relative rounded-lg bg-white dark:bg-zinc-900",
-        "border border-gray-100 dark:border-zinc-800",
-        "shadow-sm hover:shadow-md dark:shadow-md dark:hover:shadow-lg transition-all duration-300",
-        "overflow-hidden",
+        "relative rounded-lg overflow-hidden",
+        applyGlass('card', theme),
         className
       )}
       style={style}
@@ -33,6 +35,6 @@ const Card = ({
   );
 };
 
-// Export as both Card (new name) and GlassCard (for backward compatibility)
-export { Card };
-export default Card;
+// Export as both GlassCard (new name) and Card (for backward compatibility)
+export { GlassCard as Card };
+export default GlassCard;

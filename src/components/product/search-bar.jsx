@@ -37,13 +37,13 @@ const SearchBar = ({
     e.preventDefault();
     
     if (searchTerm.trim()) {
-      // If we're not already on the search page, navigate there
-      if (location.pathname !== '/search') {
-        navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
-      } else if (onSearch) {
-        // Otherwise just call the onSearch callback
+      // Call the onSearch callback if provided
+      if (onSearch) {
         onSearch(searchTerm.trim());
       }
+      
+      // Navigate to search page with search parameter
+      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
 

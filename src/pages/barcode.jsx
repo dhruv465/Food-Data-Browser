@@ -1,5 +1,5 @@
 import React from 'react';
-import Layout, { PageHeader, PageContent, PageSection } from '../components/ui/layout';
+import { PageHeader, PageContent, PageSection } from '../components/ui/layout';
 import BarcodeScanner from '../components/product/barcode-scanner';
 
 /**
@@ -9,7 +9,7 @@ import BarcodeScanner from '../components/product/barcode-scanner';
  */
 const BarcodePage = () => {
   return (
-    <Layout>
+    <>
       <PageHeader
         title="Barcode Search"
         description="Enter a product barcode to find detailed nutritional information instantly."
@@ -34,7 +34,7 @@ const BarcodePage = () => {
           </div>
         </PageSection>
       </div>
-    </Layout>
+    </>
   );
 };
 

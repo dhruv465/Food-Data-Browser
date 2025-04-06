@@ -188,16 +188,15 @@ const ProductDetailView = ({ product, isLoading, className }) => {
           
           {/* Back button */}
           <div className="pt-2">
-            <Button variant="outline" asChild>
-              <Link to="/">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
+            <Button variant="outline" onClick={() => window.history.back()}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}

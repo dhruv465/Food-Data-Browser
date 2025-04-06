@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getProductByBarcode } from '../lib/api/foodApi';
-import Layout, { PageHeader, PageContent } from '../components/ui/layout';
+import { PageHeader, PageContent } from '../components/ui/layout';
 import ProductDetailView from '../components/product/product-detail-view';
 
 /**
@@ -25,7 +25,7 @@ const ProductDetailPage = () => {
   // Handle error state
   if (isError) {
     return (
-      <Layout>
+      <>
         <PageHeader title="Product Not Found" />
         <div className="max-w-3xl mx-auto">
           <div className="rounded-lg border bg-card p-6 text-center">
@@ -35,19 +35,19 @@ const ProductDetailPage = () => {
             </p>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <PageHeader 
         title={isLoading ? 'Loading Product...' : (product.product_name || 'Product Details')}
       />
       <div className="max-w-5xl mx-auto">
         <ProductDetailView product={product} isLoading={isLoading} />
       </div>
-    </Layout>
+    </>
   );
 };
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../lib/theme-context';
 import { applyGlass } from '../../lib/glassmorphism';
+import Navbar from './navbar';
 
 /**
  * PageLayout component - Container for page content within the app layout
@@ -17,14 +18,22 @@ const PageLayout = ({
   ...props 
 }) => {
   return (
-    <div
-      className={cn(
-        "w-full space-y-6",
-        className
-      )}
-      {...props}
-    >
-      {children}
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main
+        className={cn(
+          "flex-1 w-full space-y-6",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </main>
+      <footer className="border-t py-6 mt-8">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          © {new Date().getFullYear()} Food Explorer. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { searchProductsByName } from '../lib/api/foodApi';
-import Layout, { PageHeader, PageContent, PageSection } from '../components/ui/layout';
+import { PageHeader, PageContent, PageSection } from '../components/ui/layout';
 import SearchBar from '../components/product/search-bar';
 import ProductCard from '../components/product/product-card';
 import { Button } from '../components/ui/button';
@@ -87,10 +87,25 @@ const SearchPage = () => {
   };
 
   return (
-    <Layout>
+    <>
       <PageHeader
-        title="Search Products"
-        description="Search for food products by name, brand, or ingredients."
+        title="Search Results"
+        description={debouncedSearchTerm ? `Showing results for "${debouncedSearchTerm}"` : 'Enter a search term to find products'}
+        action={
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setSearchTerm('');
+              setDebouncedSearchTerm('');
+              // Update URL without search parameter
+              window.history.pushState({}, '', '/search');
+            }}
+            disabled={!debouncedSearchTerm}
+          >
+            Clear Search
+          </Button>
+        }
       />
       
       <div className="w-full max-w-xl mx-auto mb-8">
@@ -194,7 +209,7 @@ const SearchPage = () => {
           </div>
         )}
       </PageSection>
-    </Layout>
+    </>
   );
 };
 

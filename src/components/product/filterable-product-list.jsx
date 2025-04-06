@@ -19,11 +19,6 @@ const FilterableProductList = () => {
   const [maxSugar, setMaxSugar] = useState(100);
   const [maxFat, setMaxFat] = useState(100);
   const [sortOption, setSortOption] = useState('name-asc');
-  
-  // Pagination state
-  const [page, setPage] = useState(1);
-  const [allProducts, setAllProducts] = useState([]);
-  const PAGE_SIZE = 24;
 
   // Fetch categories
   const { data: categoriesData } = useQuery({
@@ -152,44 +147,50 @@ const FilterableProductList = () => {
     : false;
 
   return (
-    <div className="space-y-6">
-      <GlassContainer className="p-6">
-        <h2 className="text-xl font-bold mb-4">Filter & Sort</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="space-y-4">
+      <h2 className="text-lg font-semibold mb-2">Filters</h2>
+      
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Categories</label>
           <MultiSelect
-            label="Categories"
             options={categoryOptions}
             selectedValues={selectedCategories}
             onChange={setSelectedCategories}
           />
-          
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Max Sugar</label>
           <RangeSlider
-            label="Max Sugar"
             min={0}
             max={100}
             value={maxSugar}
             onChange={setMaxSugar}
             unit="g"
           />
-          
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Max Fat</label>
           <RangeSlider
-            label="Max Fat"
             min={0}
             max={100}
             value={maxFat}
             onChange={setMaxFat}
             unit="g"
           />
-          
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Sort By</label>
           <SortSelect
-            label="Sort By"
             options={sortOptions}
             value={sortOption}
             onChange={setSortOption}
           />
         </div>
-      </GlassContainer>
+      </div>
       
       <GlassContainer className="p-6">
         <div className="flex justify-between items-center mb-6">

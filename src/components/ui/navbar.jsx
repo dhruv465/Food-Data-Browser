@@ -2,148 +2,49 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../lib/theme-context';
-import GlassCard from './glass-card';
+import { applyGlass } from '../../lib/glassmorphism';
 
 /**
- * Navbar component with glassmorphism effect
+ * Navbar component - Main navigation bar for the application
  * 
- * @param {Object} props - Component props
- * @param {string} props.className - Additional CSS classes
  * @returns {JSX.Element} - Navbar component
  */
-const Navbar = ({ 
-  className,
-  ...props 
-}) => {
+const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
-  
+
   return (
-    <header className={cn("sticky top-0 z-50 w-full", className)} {...props}>
-      <GlassCard className="px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-            Food Explorer
-          </span>
-        </Link>
-        
-        <nav className="flex items-center space-x-4">
-          <div className="hidden md:flex items-center space-x-4">
-            <Link 
-              to="/" 
-              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 transition-colors"
-            >
-              Home
+    <nav className={cn(
+      'sticky top-0 z-50 w-full border-b',
+      applyGlass('navbar', theme)
+    )}>
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-8">
+            <Link to="/" className="text-xl font-bold">
+              Food Browser
             </Link>
-            <Link 
-              to="/search" 
-              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 transition-colors"
-            >
-              Search
-            </Link>
-            <Link 
-              to="/barcode" 
-              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 transition-colors"
-            >
-              Barcode
-            </Link>
-            <Link 
-              to="/filter" 
-              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 transition-colors"
-            >
-              Filter
-            </Link>
+            <div className="hidden md:flex items-center space-x-6">
+              <Link to="/search" className="text-sm font-medium hover:text-primary">
+                Search
+              </Link>
+              <Link to="/barcode" className="text-sm font-medium hover:text-primary">
+                Barcode
+              </Link>
+              <Link to="/filter" className="text-sm font-medium hover:text-primary">
+                Filter
+              </Link>
+            </div>
           </div>
-          
-          <button 
+          <button
             onClick={toggleTheme}
-            className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
-            aria-label="Toggle dark mode"
+            className="p-2 rounded-lg hover:bg-accent"
+            aria-label="Toggle theme"
           >
-            {theme === 'dark' ? (
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-4 w-4" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" 
-                />
-              </svg>
-            ) : (
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-4 w-4" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" 
-                />
-              </svg>
-            )}
+            {theme === 'dark' ? '🌞' : '🌙'}
           </button>
-          
-          <button 
-            className="md:hidden w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center"
-            aria-label="Toggle menu"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-4 w-4" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M4 6h16M4 12h16M4 18h16" 
-              />
-            </svg>
-          </button>
-        </nav>
-      </GlassCard>
-      
-      {/* Mobile navigation menu */}
-      <div className="md:hidden hidden">
-        <div className="border-t px-4 py-4 space-y-3">
-          <Link 
-            to="/" 
-            className="block text-base font-medium text-foreground/60 hover:text-foreground transition-colors"
-          >
-            Home
-          </Link>
-          <Link 
-            to="/search" 
-            className="block text-base font-medium text-foreground/60 hover:text-foreground transition-colors"
-          >
-            Search
-          </Link>
-          <Link 
-            to="/barcode" 
-            className="block text-base font-medium text-foreground/60 hover:text-foreground transition-colors"
-          >
-            Scan Barcode
-          </Link>
-          <Link 
-            to="/filter" 
-            className="block text-base font-medium text-foreground/60 hover:text-foreground transition-colors"
-          >
-            Browse Foods
-          </Link>
         </div>
       </div>
-    </header>
+    </nav>
   );
 };
 
