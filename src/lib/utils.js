@@ -16,19 +16,23 @@ export function cn(...inputs) {
  * @returns {string} - Tailwind CSS color class
  */
 export function getNutritionGradeColor(grade) {
-  switch (grade?.toUpperCase()) {
+  if (!grade || grade.toUpperCase() === 'UNKNOWN') {
+    return { text: 'NG', color: 'bg-gray-500' };
+  }
+  const gradeUpper = grade.toUpperCase();
+  switch (gradeUpper) {
     case 'A':
-      return 'bg-green-500';
+      return { text: gradeUpper, color: 'bg-green-500' };
     case 'B':
-      return 'bg-lime-500';
+      return { text: gradeUpper, color: 'bg-lime-500' };
     case 'C':
-      return 'bg-yellow-500';
+      return { text: gradeUpper, color: 'bg-yellow-500' };
     case 'D':
-      return 'bg-orange-500';
+      return { text: gradeUpper, color: 'bg-orange-500' };
     case 'E':
-      return 'bg-red-500';
+      return { text: gradeUpper, color: 'bg-red-500' };
     default:
-      return 'bg-gray-500';
+      return { text: 'NG', color: 'bg-gray-500' };
   }
 }
 
@@ -48,5 +52,5 @@ export function formatNutritionValue(value, unit = 'g') {
  * @returns {string} - Fallback image URL
  */
 export function getFallbackImageUrl() {
-  return 'https://via.placeholder.com/300x300?text=No+Image';
+  return '/images/food-placeholder.svg';
 }

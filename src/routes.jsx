@@ -1,10 +1,10 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import AppLayout from './components/ui/app-layout';
-import HomePage from './pages/home';
-import SearchPage from './pages/search';
-import ProductDetailPage from './pages/product-detail';
 import BarcodePage from './pages/barcode';
+import HomePage from './pages/home';
+import ProductDetailPage from './pages/product-detail';
+import SearchPage from './pages/search';
 /**
  * AppRoutes component - Application routing configuration
  * 

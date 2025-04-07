@@ -1,8 +1,9 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useQuery } from '@tanstack/react-query';
 import { cn } from "../../lib/utils";
 import { useTheme } from "../../lib/theme-context";
 import { applyGlass } from "../../lib/glassmorphism";
+import { Button } from '../ui/button';
 import ProductCardNew from "./product-card";
 
 /**
@@ -15,15 +16,44 @@ import ProductCardNew from "./product-card";
  * @returns {JSX.Element} - ProductGrid component
  */
 const ProductGrid = ({
-  products = [],
+  products: initialProducts = [],
   loading = false,
   className,
+  fetchFn,
+  queryKey,
+  pageSize = 24,
   ...props
 }) => {
+  const [page, setPage] = useState(1);
+  const [allProducts, setAllProducts] = useState(initialProducts);
+
+  // Fetch products using React Query if fetchFn is provided
+  const { data, isLoading, isError, error, isFetching, isPreviousData } = useQuery({
+    queryKey: queryKey,
+    queryFn: () => fetchFn?.(page, pageSize),
+    enabled: !!fetchFn,
+    keepPreviousData: true,
+  });
+
+  // Update allProducts when new data is fetched
+  useEffect(() => {
+    if (data?.products) {
+      if (page === 1) {
+        setAllProducts(data.products);
+      } else {
+        setAllProducts(prev => [...prev, ...data.products]);
+      }
+    }
+  }, [data, page]);
+
+  // Handle load more button click
+  const handleLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
+  };
   const { theme } = useTheme();
 
-  // If loading, show skeleton grid
-  if (loading) {
+  // If loading and no products, show skeleton grid
+  if ((loading || isLoading) && !allProducts.length) {
     return (
       <div
         className={cn(
@@ -41,8 +71,8 @@ const ProductGrid = ({
     );
   }
 
-  // If no products, show empty state
-  if (products.length === 0) {
+  // If no products and not loading, show empty state
+  if (allProducts.length === 0 && !loading && !isLoading) {
     return (
       <div
         className={cn(
@@ -78,16 +108,36 @@ const ProductGrid = ({
 
   // Render product grid
   return (
-    <div
-      className={cn(
-        "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6",
-        className
+    <div className={className} {...props}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {allProducts.map((product) => (
+          <ProductCardNew key={product.id} product={product} />
+        ))}
+      </div>
+
+      {/* Load more button */}
+      {fetchFn && data?.products?.length > 0 && (
+        <div className="mt-8 text-center">
+          <Button
+            onClick={handleLoadMore}
+            disabled={isFetching || !data?.products?.length}
+            variant="outline"
+            className="min-w-[150px]"
+          >
+            {isFetching ? (
+              <>
+                <svg className="mr-2 h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading...
+              </>
+            ) : (
+              'Load More'
+            )}
+          </Button>
+        </div>
       )}
-      {...props}
-    >
-      {products.map((product) => (
-        <ProductCardNew key={product.id} product={product} />
-      ))}
     </div>
   );
 };
@@ -167,7 +217,7 @@ export const ProductCard = ({ product, className, ...props }) => {
         </h3>
 
         <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-          {product.brand || "Unknown brand"}
+          {product.brand || "UN"}
         </p>
 
         {/* Product Highlights */}

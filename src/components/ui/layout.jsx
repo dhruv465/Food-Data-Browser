@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "../../lib/utils";
 import { useTheme } from "../../lib/theme-context";
 import { applyGlass } from "../../lib/glassmorphism";
-import Navbar from "./navbar";
+import Navbar from "./main-nav";
 
 /**
  * Layout component - Main layout wrapper for the application
