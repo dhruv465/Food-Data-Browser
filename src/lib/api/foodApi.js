@@ -228,46 +228,9 @@ export const getProductByBarcode = async (barcode) => {
   }
 };
 
-/**
- * Get products with advanced filtering
- * @param {Object} filters - Filter options
- * @param {string[]} filters.categories - Array of category IDs
- * @param {Object} filters.nutrition - Nutrition filters
- * @param {string} filters.sortBy - Sort option
- * @param {number} page - Page number for pagination
- * @param {number} pageSize - Number of items per page
- * @returns {Promise} - Promise with the response data
- */
-export const getProductsWithFilters = async (filters = {}, page = 1, pageSize = DEFAULT_PAGE_SIZE) => {
-  const { categories = [], nutrition = {}, sortBy = 'name-asc' } = filters;
-  
-  try {
-    // For now, we'll use the existing getProductsByCategory function
-    // In a real implementation, we would use a more sophisticated approach
-    // that directly applies all filters at the API level
-    
-    // Get products by categories
-    let productsData;
-    if (categories.length > 0) {
-      productsData = await getProductsByCategory(categories, page, pageSize);
-    } else {
-      return { products: [], count: 0, page: 1, page_count: 1 };
-    }
-    
-    // The filtering by nutrition values and sorting will be done client-side
-    // In a real implementation, these would be handled by the API
-    
-    return productsData;
-  } catch (error) {
-    console.error('Error in getProductsWithFilters:', error);
-    throw error;
-  }
-};
-
 export default {
   getProductsByCategory,
   searchProductsByName,
   getProductByBarcode,
   getCategories,
-  getProductsWithFilters,
 };

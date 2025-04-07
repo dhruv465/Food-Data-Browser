@@ -1,9 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getProductByBarcode } from "../lib/api/foodApi";
-import { PageHeader, PageContent } from "../components/ui/layout";
 import ProductDetailView from "../components/product/product-detail-view";
+import { PageHeader } from "../components/ui/layout";
+import { getProductByBarcode } from "../lib/api/foodApi";
 
 /**
  * ProductDetailPage component - Redesigned product detail page

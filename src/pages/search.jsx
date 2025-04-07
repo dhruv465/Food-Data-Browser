@@ -6,7 +6,6 @@ import { PageHeader, PageContent, PageSection } from "../components/ui/layout";
 import SearchBar from "../components/product/search-bar";
 import ProductCard from "../components/product/product-card";
 import { Button } from "../components/ui/button";
-import { useDebounce } from "../hooks/use-debounce";
 
 /**
  * SearchPage component - Redesigned search page
@@ -23,9 +22,6 @@ const SearchPage = () => {
   const [allProducts, setAllProducts] = useState([]);
   const PAGE_SIZE = 24;
 
-  // Use our custom debounce hook to prevent excessive API calls
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
   // Update search term when URL query parameter changes
   useEffect(() => {
     const newSearchTerm = queryParams.get("q") || "";
@@ -34,18 +30,12 @@ const SearchPage = () => {
     setAllProducts([]);
   }, [location.search]);
 
-  // Reset page and clear products when debounced search term changes
-  useEffect(() => {
-    setPage(1); // Reset to first page on new search
-    setAllProducts([]); // Clear previous results on new search
-  }, [debouncedSearchTerm]);
-
   // Fetch products using React Query
   const { data, isLoading, isError, error, isFetching, isPreviousData } =
     useQuery({
-      queryKey: ["search", debouncedSearchTerm, page],
-      queryFn: () => searchProductsByName(debouncedSearchTerm, page, PAGE_SIZE),
-      enabled: debouncedSearchTerm.length > 2, // Only search when term is at least 3 characters
+      queryKey: ["search", searchTerm, page],
+      queryFn: () => searchProductsByName(searchTerm, page, PAGE_SIZE),
+      enabled: searchTerm.length > 2, // Only search when term is at least 3 characters
       keepPreviousData: true,
     });
 
@@ -108,7 +98,7 @@ const SearchPage = () => {
               // Update URL without search parameter
               window.history.pushState({}, "", "/search");
             }}
-            disabled={!debouncedSearchTerm}
+            disabled={!searchTerm}
           >
             Clear Search
           </Button>
@@ -131,20 +121,8 @@ const SearchPage = () => {
           </div>
         )}
 
-        {/* Search too short warning */}
-        {debouncedSearchTerm && debouncedSearchTerm.length < 3 && (
-          <div className="text-center py-8">
-            <h2 className="text-xl font-semibold mb-2">
-              Search term too short
-            </h2>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              Please enter at least 3 characters to search.
-            </p>
-          </div>
-        )}
-
         {/* Search results */}
-        {debouncedSearchTerm && debouncedSearchTerm.length >= 3 && (
+        {searchTerm && searchTerm.length >= 3 && (
           <div className="space-y-6">
             {/* Results count */}
             {!isLoading && !isError && data?.products && (
