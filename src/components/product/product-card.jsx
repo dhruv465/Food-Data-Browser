@@ -42,19 +42,26 @@ const ProductCardNew = ({ product, className }) => {
     return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
   };
 
-  // Get nutrition grade badge color
-  const getNutritionBadgeClass = (grade) => {
-    if (!grade) return 'bg-gray-300';
+  // Get nutrition grade badge color and icon
+  const getNutritionBadgeInfo = (grade) => {
+    if (!grade) return { color: 'bg-gray-300', icon: '?' };
     
-    const gradeColors = {
-      'a': 'bg-green-500',
-      'b': 'bg-lime-500',
-      'c': 'bg-yellow-500',
-      'd': 'bg-orange-500',
-      'e': 'bg-red-500',
+    const gradeInfo = {
+      'a': { color: 'bg-green-500', icon: '★★★' },
+      'b': { color: 'bg-lime-500', icon: '★★' },
+      'c': { color: 'bg-yellow-500', icon: '★' },
+      'd': { color: 'bg-orange-500', icon: '▲' },
+      'e': { color: 'bg-red-500', icon: '■' },
     };
     
-    return gradeColors[grade.toLowerCase()] || 'bg-gray-300';
+    return gradeInfo[grade.toLowerCase()] || { color: 'bg-gray-300', icon: '?' };
+  };
+
+  // Get nutrition grade badge class
+  const getNutritionBadgeClass = (grade) => {
+    if (!grade) return 'bg-gray-300';
+    const gradeInfo = getNutritionBadgeInfo(grade);
+    return gradeInfo.color;
   };
 
   return (
@@ -94,39 +101,25 @@ const ProductCardNew = ({ product, className }) => {
       </div>
       
       {/* Product info */}
-      <div className="flex flex-1 flex-col space-y-2 p-4">
+      <div className="flex flex-1 flex-col space-y-3 p-4">
         {/* Category */}
-        <p className="text-xs text-muted-foreground uppercase tracking-wide">
+        <p className="text-xs text-muted-foreground uppercase tracking-wide truncate">
           {formattedCategory}
         </p>
         
         {/* Product name */}
-        <h3 className="font-medium leading-tight">
-          {truncateText(product_name || 'Unknown product')}
+        <h3 className="font-medium leading-snug line-clamp-2 min-h-[2.5rem]">
+          {product_name || 'Unknown product'}
         </h3>
         
         {/* Ingredients */}
         {ingredients_text && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {truncateText(ingredients_text, 100)}
+          <p className="text-sm text-muted-foreground leading-normal line-clamp-2 min-h-[2.5rem]">
+            {ingredients_text}
           </p>
         )}
         
-        {/* Nutrition Grade */}
-        <div className="mt-auto pt-2">
-          {nutrition_grades && (
-            <div 
-              className={cn(
-                "text-sm px-3 py-1 rounded-full inline-flex items-center",
-                getNutritionBadgeClass(nutrition_grades)
-              )}
-            >
-              <span className="text-white font-medium">
-                Nutrition Grade: {nutrition_grades.toUpperCase()}
-              </span>
-            </div>
-          )}
-        </div>
+
       </div>
     </Link>
   );

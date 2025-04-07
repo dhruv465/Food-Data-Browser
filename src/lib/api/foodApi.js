@@ -91,7 +91,7 @@ api.interceptors.response.use(
 
 /**
  * Get products by category
- * @param {string} category - Category name (e.g., 'breakfast-cereals')
+ * @param {string|string[]} category - Category name or array of category names
  * @param {number} page - Page number for pagination
  * @param {number} pageSize - Number of items per page
  * @returns {Promise} - Promise with the response data
@@ -113,12 +113,25 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
     
     // Try to get data from API with retry mechanism
     const apiCallFn = async () => {
-      const response = await api.get(`/offapi/category/${category}.json?page=${page}&page_size=${pageSize}`);
-      return response.data;
+      // Handle single category or multiple categories
+      if (Array.isArray(category)) {
+        // If multiple categories, use the first one for now
+        // In a real implementation, we would use a more sophisticated approach
+        // like combining results from multiple API calls or using a more advanced API endpoint
+        if (category.length === 0) {
+          return { products: [], count: 0, page: 1, page_count: 1 };
+        }
+        const response = await api.get(`/offapi/category/${category[0]}.json?page=${page}&page_size=${pageSize}`);
+        return response.data;
+      } else {
+        // Single category (original behavior)
+        const response = await api.get(`/offapi/category/${category}.json?page=${page}&page_size=${pageSize}`);
+        return response.data;
+      }
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
-    console.error(`Error in getProductsByCategory for "${category}":`, error);
+    console.error(`Error in getProductsByCategory:`, error);
     // Propagate the error to the UI instead of returning mock data
     throw error;
   }
@@ -215,9 +228,46 @@ export const getProductByBarcode = async (barcode) => {
   }
 };
 
+/**
+ * Get products with advanced filtering
+ * @param {Object} filters - Filter options
+ * @param {string[]} filters.categories - Array of category IDs
+ * @param {Object} filters.nutrition - Nutrition filters
+ * @param {string} filters.sortBy - Sort option
+ * @param {number} page - Page number for pagination
+ * @param {number} pageSize - Number of items per page
+ * @returns {Promise} - Promise with the response data
+ */
+export const getProductsWithFilters = async (filters = {}, page = 1, pageSize = DEFAULT_PAGE_SIZE) => {
+  const { categories = [], nutrition = {}, sortBy = 'name-asc' } = filters;
+  
+  try {
+    // For now, we'll use the existing getProductsByCategory function
+    // In a real implementation, we would use a more sophisticated approach
+    // that directly applies all filters at the API level
+    
+    // Get products by categories
+    let productsData;
+    if (categories.length > 0) {
+      productsData = await getProductsByCategory(categories, page, pageSize);
+    } else {
+      return { products: [], count: 0, page: 1, page_count: 1 };
+    }
+    
+    // The filtering by nutrition values and sorting will be done client-side
+    // In a real implementation, these would be handled by the API
+    
+    return productsData;
+  } catch (error) {
+    console.error('Error in getProductsWithFilters:', error);
+    throw error;
+  }
+};
+
 export default {
   getProductsByCategory,
   searchProductsByName,
   getProductByBarcode,
   getCategories,
+  getProductsWithFilters,
 };
