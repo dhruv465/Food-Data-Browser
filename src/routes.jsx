@@ -1,26 +1,42 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import AppLayout from './components/ui/app-layout';
 import HomePage from './pages/home';
-import BarcodePage from './pages/barcode';
 import SearchPage from './pages/search';
-import FilterPage from './pages/filter';
 import ProductDetailPage from './pages/product-detail';
-
+import BarcodePage from './pages/barcode';
 /**
  * AppRoutes component - Application routing configuration
  * 
  * @returns {JSX.Element} - Routes configuration
  */
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <AppLayout />,
+    children: [
+      {
+        index: true,
+        element: <HomePage />,
+      },
+      {
+        path: 'search',
+        element: <SearchPage />,
+      },
+      {
+        path: 'product/:id',
+        element: <ProductDetailPage />,
+      },
+      {
+        path: 'barcode',
+        element: <BarcodePage />,
+      },
+    ],
+  },
+]);
+
 const AppRoutes = () => {
-  return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/barcode" element={<BarcodePage />} />
-      <Route path="/search" element={<SearchPage />} />
-      <Route path="/filter" element={<FilterPage />} />
-      <Route path="/product/:id" element={<ProductDetailPage />} />
-    </Routes>
-  );
+  return <RouterProvider router={router} />;
 };
 
 export default AppRoutes;
