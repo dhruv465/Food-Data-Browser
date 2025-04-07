@@ -18,6 +18,7 @@ const SearchPage = () => {
   const initialSearchTerm = queryParams.get("q") || "";
 
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(initialSearchTerm);
   const [page, setPage] = useState(1);
   const [allProducts, setAllProducts] = useState([]);
   const PAGE_SIZE = 24;
@@ -53,6 +54,14 @@ const SearchPage = () => {
   // Handle search submission
   const handleSearch = (term) => {
     setSearchTerm(term);
+    setDebouncedSearchTerm(term);
+    setPage(1);
+    setAllProducts([]);
+    // Update URL when search term changes
+    const newUrl = term
+      ? `/search?q=${encodeURIComponent(term)}`
+      : "/search";
+    window.history.pushState({}, "", newUrl);
   };
 
   // Handle load more button click

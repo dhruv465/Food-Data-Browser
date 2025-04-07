@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { useDebounce } from '../../hooks/use-debounce';
 
@@ -20,8 +19,6 @@ const SearchBar = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState(initialValue);
   const [isFocused, setIsFocused] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
   
   // Use the debounce hook to prevent excessive API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -42,21 +39,13 @@ const SearchBar = ({
   // Handle input change
   const handleChange = (e) => {
     setSearchTerm(e.target.value);
-    // The debounced effect will handle the search after the delay
   };
 
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (searchTerm.trim()) {
-      // Call the onSearch callback if provided
-      if (onSearch) {
-        onSearch(searchTerm.trim());
-      }
-      
-      // Navigate to search page with search parameter
-      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+    if (searchTerm.trim() && onSearch) {
+      onSearch(searchTerm.trim());
     }
   };
 
