@@ -57,15 +57,13 @@ const HomeRedesigned = () => {
       try {
         const categoriesData = await getCategories();
         if (categoriesData && categoriesData.tags) {
-          const topCategories = categoriesData.tags
-            .slice(0, 15)
-            .map((tag) => {
-              const name = tag.name.split(":").pop().replace(/-/g, " ");
-              return name
-                .split(" ")
-                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(" ");
-            });
+          const topCategories = categoriesData.tags.slice(0, 15).map((tag) => {
+            const name = tag.name.split(":").pop().replace(/-/g, " ");
+            return name
+              .split(" ")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ");
+          });
           setAvailableCategories(topCategories);
         }
       } catch (error) {
