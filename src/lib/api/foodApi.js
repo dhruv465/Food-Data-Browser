@@ -1,43 +1,62 @@
 import axios from 'axios';
 import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT } from '../api-config';
 
-// Define the proxy endpoint as the base for all calls
-const API_PROXY_ENDPOINT = '/api/offproxy'; // All requests go through this Vercel function
+// Define the base URLs
+const PROD_BASE_URL = 'https://world.openfoodfacts.org';
+const DEV_PROXY_PATH = '/offapi'; // Your proxy path defined in vite.config.ts
 
-// Create axios instance
+// Determine the base URL based on the environment
+const API_BASE_URL = import.meta.env.PROD ? PROD_BASE_URL : DEV_PROXY_PATH;
+
+// Create axios instance - No BaseURL needed here as we construct full paths below
 const api = axios.create({
-  // No base URL here, we use the full proxy path in requests
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000, // Increased timeout slightly for proxy layer
+  timeout: 10000, // 10 seconds timeout
 });
 
 /**
  * Utility function to retry a failed API call with exponential backoff
+ * @param {Function} apiCall - The API call function to retry
+ * @param {Array} args - Arguments to pass to the API call function
+ * @param {number} retries - Number of retries remaining
+ * @param {number} delay - Delay between retries in ms
+ * @returns {Promise} - Promise with the response data or error
  */
 const retryApiCall = async (apiCall, args, retries = DEFAULT_RETRY_COUNT, delay = 1000) => {
   try {
     return await apiCall(...args);
   } catch (error) {
-    // Retry on network errors or 5xx server errors from the proxy or upstream API
-    if (retries > 0 && (error.message === ERROR_MESSAGES.NETWORK_ERROR || error.code === 'ECONNREFUSED' || error.response?.status >= 500)) {
-      console.log(`API call via proxy failed, retrying... (${retries} retries left)`);
+    if (retries > 0 && (error.message === ERROR_MESSAGES.NETWORK_ERROR || error.code === 'ECONNREFUSED')) {
+      console.log(`API call failed, retrying... (${retries} retries left)`);
       await new Promise(resolve => setTimeout(resolve, delay));
       return retryApiCall(apiCall, args, retries - 1, delay * 2); // Exponential backoff
     }
-    // Don't retry client errors like 404 Not Found immediately
-    if (error.message === ERROR_MESSAGES.NOT_FOUND) {
-        console.warn("Caught Not Found error, not retrying.");
-    }
-    throw error; // Re-throw error if no retries left or it's not a retryable error
+    throw error;
+  }
+};
+
+/**
+ * Check if the API is available
+ * @returns {Promise<boolean>} - Promise that resolves to true if API is available, false otherwise
+ */
+const checkApiAvailability = async () => {
+  try {
+    // Use the determined base URL for the check
+    await api.get(`${API_BASE_URL}/categories.json`, { timeout: 5000 });
+    return true;
+  } catch (error) {
+    console.error('API availability check failed:', error.message);
+    return false;
   }
 };
 
 // Request interceptor for API calls
 api.interceptors.request.use(
   (config) => {
-    // console.log('Making API request via proxy:', config.url); // Optional: Log requests
+    // You could add additional headers or auth tokens here if needed
+    // console.log('Making API request:', config.url); // Optional: Log requests for debugging
     return config;
   },
   (error) => {
@@ -48,46 +67,40 @@ api.interceptors.request.use(
 // Response interceptor for API calls
 api.interceptors.response.use(
   (response) => {
-    // Check for OpenFoodFacts specific 'product not found' status within a successful proxy response
-    if (response.data?.status === 0 && response.config.url.includes('/api/v0/product/')) {
-        console.warn("Proxy returned success, but OFF status is 0 (Product Not Found)");
-        // Throw a specific error type that can be caught downstream
-        const notFoundError = new Error(ERROR_MESSAGES.NOT_FOUND);
-        notFoundError.name = 'ProductNotFoundError'; // Custom error name
-        throw notFoundError;
-    }
     return response;
   },
   (error) => {
     // Transform error messages to be more user-friendly
     if (error.response) {
-      console.error("API Proxy Error Response:", error.response.status, error.response.data);
+      // Server responded with a status code outside the 2xx range
+      console.error("API Error Response:", error.response);
       if (error.response.status === 404) {
-        // Could be 404 from the proxy itself OR from OpenFoodFacts via proxy
-         error.message = ERROR_MESSAGES.NOT_FOUND;
+        error.message = ERROR_MESSAGES.NOT_FOUND;
       } else if (error.response.status >= 500) {
-        error.message = ERROR_MESSAGES.SERVER_ERROR + (error.response.data?.message ? ` (${error.response.data.message})` : '');
+        error.message = ERROR_MESSAGES.SERVER_ERROR;
       } else {
-        error.message = `Proxy request failed with status ${error.response.status}` + (error.response.data?.message ? ` (${error.response.data.message})` : '');
+        // Include status code for other client errors
+        error.message = `API request failed with status ${error.response.status}`;
       }
     } else if (error.request) {
-      console.error("API Proxy No Response:", error.request);
+      // The request was made but no response was received
+      console.error("API No Response:", error.request);
       error.message = ERROR_MESSAGES.NETWORK_ERROR;
-    } else if (error.name === 'ProductNotFoundError') {
-        // Handle the specific error thrown in the success interceptor
-        error.message = ERROR_MESSAGES.NOT_FOUND;
-    }
-     else {
-      console.error("API Request Setup/Unknown Error:", error.message);
+    } else {
+      // Something happened in setting up the request
+      console.error("API Request Setup Error:", error.message);
       error.message = ERROR_MESSAGES.GENERAL_ERROR;
     }
     return Promise.reject(error);
   }
 );
 
-
 /**
  * Get products by category
+ * @param {string|string[]} category - Category name or array of category names
+ * @param {number} page - Page number for pagination
+ * @param {number} pageSize - Number of items per page
+ * @returns {Promise} - Promise with the response data
  */
 export const getProductsByCategory = async (category, page = 1, pageSize = DEFAULT_PAGE_SIZE) => {
   if (!category) {
@@ -96,67 +109,89 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
   }
 
   try {
-    const apiCallFn = async () => {
-      let categoryName = Array.isArray(category) ? category[0] : category;
-      if (!categoryName && Array.isArray(category) && category.length > 0) categoryName = category[0];
-      if (!categoryName) return { products: [], count: 0, page: 1, page_count: 1 };
+    const apiAvailable = await checkApiAvailability();
+    if (!apiAvailable) {
+      throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
+    }
 
-      const targetPath = `/category/${categoryName}.json`;
-      const url = `${API_PROXY_ENDPOINT}${targetPath}?page=${page}&page_size=${pageSize}`;
+    const apiCallFn = async () => {
+      let categoryName = '';
+      if (Array.isArray(category)) {
+        if (category.length === 0) {
+          return { products: [], count: 0, page: 1, page_count: 1 };
+        }
+        categoryName = category[0]; // Using the first category if multiple
+      } else {
+        categoryName = category;
+      }
+      // Construct the full URL based on the environment
+      const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize}`;
       const response = await api.get(url);
       return response.data;
     };
-    return await retryApiCall(apiCallFn, []); // Use default retry count
+    return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
-    // Errors are now handled by the interceptor, just log here if needed
-    // console.error(`Error caught in getProductsByCategory:`, error.message);
-    throw error; // Propagate error
+    console.error(`Error in getProductsByCategory:`, error);
+    throw error;
   }
 };
 
 /**
  * Search products by name
+ * @param {string} searchTerm - Search term
+ * @param {number} page - Page number for pagination
+ * @param {number} pageSize - Number of items per page
+ * @returns {Promise} - Promise with the response data
  */
 export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFAULT_PAGE_SIZE) => {
-   if (!searchTerm || searchTerm.trim() === "") {
-     console.log("Skipping search for empty term.");
-     return { products: [], count: 0, page: 1, page_count: 0 };
-   }
   try {
+    const apiAvailable = await checkApiAvailability();
+    if (!apiAvailable) {
+      throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
+    }
+
     const encodedSearchTerm = encodeURIComponent(searchTerm);
     const apiCallFn = async () => {
-      const targetPath = `/cgi/search.pl`;
-      const url = `${API_PROXY_ENDPOINT}${targetPath}?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`;
+      // Construct the full URL based on the environment
+      const url = `${API_BASE_URL}/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`;
       const response = await api.get(url);
       return response.data;
     };
-    return await retryApiCall(apiCallFn, []);
+    return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
-    // console.error(`Error caught in searchProductsByName for "${searchTerm}":`, error.message);
+    console.error(`Error in searchProductsByName for "${searchTerm}":`, error);
     throw error;
   }
 };
 
 /**
  * Get categories
+ * @returns {Promise} - Promise with the response data
  */
 export const getCategories = async () => {
   try {
+    const apiAvailable = await checkApiAvailability();
+    if (!apiAvailable) {
+      throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
+    }
+
     const apiCallFn = async () => {
-      const targetPath = `/categories.json`;
-      const url = `${API_PROXY_ENDPOINT}${targetPath}`;
+      // Construct the full URL based on the environment
+      const url = `${API_BASE_URL}/categories.json`;
       const response = await api.get(url);
       return response.data;
     };
-    return await retryApiCall(apiCallFn, []);
+    return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
-    // console.error('Error caught in getCategories:', error.message);
+    console.error('Error in getCategories:', error);
     throw error;
   }
 };
 
 /**
  * Get product by barcode
+ * @param {string} barcode - Product barcode
+ * @returns {Promise} - Promise with the response data
  */
 export const getProductByBarcode = async (barcode) => {
   if (!barcode) {
@@ -165,23 +200,26 @@ export const getProductByBarcode = async (barcode) => {
   }
 
   try {
+    const apiAvailable = await checkApiAvailability();
+    if (!apiAvailable) {
+      throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
+    }
+
     const apiCallFn = async () => {
-      const targetPath = `/api/v0/product/${barcode}.json`;
-      const url = `${API_PROXY_ENDPOINT}${targetPath}`;
+      // Construct the full URL based on the environment
+      // Note: The assignment doc uses /api/v0/ but the original code might implicitly use /api/v2 via proxy?
+      // Assuming v0 based on assignment doc[cite: 23]. Adjust if needed.
+      const url = `${API_BASE_URL}/api/v0/product/${barcode}.json`;
       const response = await api.get(url);
-      // The success interceptor now handles the status=0 case
       return response.data;
     };
-    // Use fewer retries for specific product lookups as 404 is common and not retryable
-    return await retryApiCall(apiCallFn, [], 1);
+    return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
-     // Errors (including specific Not Found) are handled by interceptors
-     // console.error(`Error caught in getProductByBarcode for "${barcode}":`, error.message);
+    console.error(`Error in getProductByBarcode for "${barcode}":`, error);
     throw error;
   }
 };
 
-// Default export
 export default {
   getProductsByCategory,
   searchProductsByName,
