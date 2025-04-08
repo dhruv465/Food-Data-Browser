@@ -201,9 +201,7 @@ const ProductDetailView = ({ product, isLoading, className }) => {
                 ))}
               </div>
             ) : (
-              <p>
-                {formatWithFallback("", { defaultText: "No labels available" })}
-              </p>
+              <p>{formatWithFallback("", { defaultText: "No labels available" })}</p>
             )}
           </div>
 
@@ -214,9 +212,9 @@ const ProductDetailView = ({ product, isLoading, className }) => {
             </h2>
             {/* Barcode Image */}
             <div className="mb-3">
-              <BarcodeImage
-                barcode={product._id}
-                format="EAN13"
+              <BarcodeImage 
+                barcode={product._id} 
+                format="EAN13" 
                 height={80}
                 className="max-w-[240px] bg-white p-3 rounded-md border"
               />
@@ -225,8 +223,8 @@ const ProductDetailView = ({ product, isLoading, className }) => {
               <span className="inline-flex items-center rounded-md bg-primary/10 px-2.5 py-0.5 text-sm font-medium text-primary">
                 {product._id || "Unknown"}
               </span>
-              <Link
-                to={`/barcode`}
+              <Link 
+                to={`/barcode`} 
                 className="text-xs text-muted-foreground hover:text-primary hover:underline"
               >
                 Search another barcode
