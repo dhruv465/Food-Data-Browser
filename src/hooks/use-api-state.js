@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { useToast } from './use-toast';
 import { ERROR_MESSAGES } from '../lib/api-config';
 
 /**
@@ -7,25 +6,13 @@ import { ERROR_MESSAGES } from '../lib/api-config';
  * @param {boolean} isLoading - Loading state from React Query
  * @param {boolean} isError - Error state from React Query
  * @param {object} error - Error object from React Query
- * @param {boolean} showToast - Whether to show error toast notifications
  */
-export function useApiState({
-  isLoading,
-  isError,
-  error,
-  showToast = true,
-}) {
-  const { toast } = useToast();
-
+export function useApiState({ isLoading, isError, error }) {
   useEffect(() => {
-    if (isError && showToast) {
-      toast({
-        title: 'Error',
-        description: error?.message || ERROR_MESSAGES.GENERAL_ERROR,
-        variant: 'destructive',
-      });
+    if (isError) {
+      console.error(error?.message || ERROR_MESSAGES.GENERAL_ERROR);
     }
-  }, [isError, error, showToast, toast]);
+  }, [isError, error]);
 
   return {
     isLoading,
