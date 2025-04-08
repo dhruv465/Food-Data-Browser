@@ -10,6 +10,7 @@ import { formatWithFallback } from "../../lib/utils/fallback";
 import { Button } from "../ui/button";
 import { useTheme } from "../../lib/theme-context";
 import { applyGlass } from "../../lib/glassmorphism";
+import BarcodeImage from "./barcode-image";
 
 /**
  * ProductDetailView component - Displays detailed product information
@@ -200,8 +201,37 @@ const ProductDetailView = ({ product, isLoading, className }) => {
                 ))}
               </div>
             ) : (
-              <p>{formatWithFallback("", { defaultText: "No labels available" })}</p>
+              <p>
+                {formatWithFallback("", { defaultText: "No labels available" })}
+              </p>
             )}
+          </div>
+
+          {/* Barcode */}
+          <div>
+            <h2 className="text-sm font-medium text-muted-foreground mb-1">
+              Barcode
+            </h2>
+            {/* Barcode Image */}
+            <div className="mb-3">
+              <BarcodeImage
+                barcode={product._id}
+                format="EAN13"
+                height={80}
+                className="max-w-[240px] bg-white p-3 rounded-md border"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center rounded-md bg-primary/10 px-2.5 py-0.5 text-sm font-medium text-primary">
+                {product._id || "Unknown"}
+              </span>
+              <Link
+                to={`/barcode`}
+                className="text-xs text-muted-foreground hover:text-primary hover:underline"
+              >
+                Search another barcode
+              </Link>
+            </div>
           </div>
         </div>
       </div>

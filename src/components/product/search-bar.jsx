@@ -1,25 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { cn } from '../../lib/utils';
-import { useDebounce } from '../../hooks/use-debounce';
+import React, { useState, useEffect } from "react";
+import { cn } from "../../lib/utils";
+import { useDebounce } from "../../hooks/use-debounce";
 
 /**
  * SearchBar component - Modern search input with suggestions
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.className - Additional CSS classes
  * @param {Function} props.onSearch - Search callback function
  * @param {string} props.initialValue - Initial search value
  * @returns {JSX.Element} - SearchBar component
  */
-const SearchBar = ({ 
-  className, 
-  onSearch, 
-  initialValue = '',
-  ...props 
-}) => {
+const SearchBar = ({ className, onSearch, initialValue = "", ...props }) => {
   const [searchTerm, setSearchTerm] = useState(initialValue);
   const [isFocused, setIsFocused] = useState(false);
-  
+
   // Use the debounce hook to prevent excessive API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
@@ -27,7 +22,7 @@ const SearchBar = ({
   useEffect(() => {
     setSearchTerm(initialValue);
   }, [initialValue]);
-  
+
   // Call onSearch when debounced search term changes
   useEffect(() => {
     // Only trigger search if there's a callback and the term is different from initial
@@ -51,26 +46,25 @@ const SearchBar = ({
 
   // Handle clear button click
   const handleClear = () => {
-    setSearchTerm('');
+    setSearchTerm("");
     if (onSearch) {
-      onSearch('');
+      onSearch("");
     }
   };
 
   return (
-    <form 
-      onSubmit={handleSubmit} 
-      className={cn(
-        "relative w-full",
-        className
-      )}
+    <form
+      onSubmit={handleSubmit}
+      className={cn("relative w-full", className)}
       {...props}
     >
-      <div className={cn(
-        "flex h-10 items-center rounded-md border bg-background px-3 py-2 text-sm ring-offset-background",
-        "focus-within:ring-1 focus-within:ring-ring focus-within:ring-offset-2",
-        isFocused ? "ring-1 ring-ring ring-offset-2" : ""
-      )}>
+      <div
+        className={cn(
+          "flex h-10 items-center rounded-md border bg-background px-3 py-2 text-sm ring-offset-background",
+          "focus-within:ring-1 focus-within:ring-ring focus-within:ring-offset-2",
+          isFocused ? "ring-1 ring-ring ring-offset-2" : ""
+        )}
+      >
         {/* Search icon */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -86,7 +80,7 @@ const SearchBar = ({
             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
           />
         </svg>
-        
+
         {/* Search input */}
         <input
           type="text"
@@ -97,7 +91,7 @@ const SearchBar = ({
           placeholder="Search for food products..."
           className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
         />
-        
+
         {/* Clear button */}
         {searchTerm && (
           <button
