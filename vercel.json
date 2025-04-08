@@ -3,7 +3,7 @@
    
     {
       "source": "/offapi/(.*)", 
-      "destination": "https://world.openfoodfacts.org/$1" 
+      "destination": "https://world.openfoodfacts.org/" 
     },
   
     { "source": "/(.*)", "destination": "/" }
