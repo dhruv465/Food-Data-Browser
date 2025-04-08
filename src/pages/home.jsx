@@ -161,7 +161,7 @@ const Home = () => {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section
-        className="relative h-[400px] bg-cover bg-center"
+        className="relative h-[400px] bg-cover bg-center mb-4"
         style={{
           backgroundImage:
             'url("https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80")',
@@ -200,7 +200,7 @@ const Home = () => {
       />
 
       {/* Products Section */}
-      <section className="container mx-auto px-4 py-12 relative transition-all duration-300">
+      <section className="container mx-auto px-4 py-1 relative transition-all duration-300">
         {/* Main Content Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -306,9 +306,7 @@ const Home = () => {
                   disabled={isFetchingNextPage}
                   className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
                 >
-                  {isFetchingNextPage
-                    ? "Loading more..."
-                    : "Load more products"}
+                  {isFetchingNextPage ? "Loading..." : "Load more"}
                 </button>
               </div>
             )}

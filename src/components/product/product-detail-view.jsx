@@ -130,7 +130,7 @@ const ProductDetailView = ({ product, isLoading, className }) => {
       {/* Hero section with product image and basic info */}
       <div
         className={cn(
-          "rounded-xl overflow-hidden relative",
+          "rounded-xl overflow-hidden relative mt-4",
           applyGlass("card", theme, "bg-opacity-90 dark:bg-opacity-90")
         )}
       >
@@ -200,7 +200,7 @@ const ProductDetailView = ({ product, isLoading, className }) => {
                   <div className="flex items-center gap-3 p-3 rounded-md bg-white/50 dark:bg-white/5 border shadow-sm">
                     <span
                       className={cn(
-                        "flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white",
+                        "flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white truncate",
                         getNutritionBadgeClass(nutrition_grades)
                       )}
                     >
@@ -219,14 +219,14 @@ const ProductDetailView = ({ product, isLoading, className }) => {
 
                 {ecoscore_grade && (
                   <div className="flex items-center gap-3 p-3 rounded-md bg-white/50 dark:bg-white/5 border shadow-sm">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-lg font-bold text-white">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-lg font-bold text-white text-ellipsis truncate">
                       {ecoscore_grade.toUpperCase()}
                     </span>
                     <div>
                       <p className="text-xs font-medium text-muted-foreground">
                         Eco Score
                       </p>
-                      <p className="text-base font-semibold">
+                      <p className="text-base font-semibold ">
                         {ecoscore_grade.toUpperCase()}
                       </p>
                     </div>

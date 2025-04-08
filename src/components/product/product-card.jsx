@@ -100,7 +100,7 @@ const ProductCardNew = ({ product, className }) => {
           <div className="absolute top-2 right-2 z-10">
             <span
               className={cn(
-                "flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white",
+                "flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white truncate",
                 getNutritionBadgeClass(nutrition_grades)
               )}
               title={`Nutrition Grade: ${nutrition_grades.toUpperCase()}`}
