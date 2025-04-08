@@ -58,7 +58,12 @@ const Home = () => {
       products = products.filter((product) =>
         activeFilters.categories.some((category) =>
           product.categories_tags?.some((tag) => {
-            const normalizedTag = tag.replace('en:', '').split(':').pop().replace(/-/g, ' ').toLowerCase();
+            const normalizedTag = tag
+              .replace("en:", "")
+              .split(":")
+              .pop()
+              .replace(/-/g, " ")
+              .toLowerCase();
             const normalizedCategory = category.toLowerCase();
             return normalizedTag === normalizedCategory;
           })
@@ -72,9 +77,13 @@ const Home = () => {
       products = products.filter((product) => {
         const nutriments = product.nutriments || {};
         if (sugar !== undefined && nutriments.sugars_100g > sugar) return false;
-        if (calories !== undefined && nutriments.energy_kcal_100g <= calories) return true;
-        if (protein !== undefined && nutriments.proteins_100g <= protein) return true;
-        return sugar === undefined && calories === undefined && protein === undefined;
+        if (calories !== undefined && nutriments.energy_kcal_100g <= calories)
+          return true;
+        if (protein !== undefined && nutriments.proteins_100g <= protein)
+          return true;
+        return (
+          sugar === undefined && calories === undefined && protein === undefined
+        );
       });
     }
 
@@ -250,7 +259,9 @@ const Home = () => {
               <AnimatePresence>
                 {allProducts.filter(Boolean).map((product) => (
                   <motion.div
-                    key={product?.id || Math.random().toString(36).substring(2, 9)}
+                    key={
+                      product?.id || Math.random().toString(36).substring(2, 9)
+                    }
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}

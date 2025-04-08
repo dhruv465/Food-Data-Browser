@@ -1,9 +1,14 @@
 import axios from 'axios';
 import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT } from '../api-config';
-// Removed mock data imports as we no longer want to use fallback mock data
 
-// Create axios instance
-// BaseURL is not set here, as we use relative paths for the proxy
+// Define the base URLs
+const PROD_BASE_URL = 'https://world.openfoodfacts.org';
+const DEV_PROXY_PATH = '/offapi'; // Your proxy path defined in vite.config.ts
+
+// Determine the base URL based on the environment
+const API_BASE_URL = import.meta.env.PROD ? PROD_BASE_URL : DEV_PROXY_PATH;
+
+// Create axios instance - No BaseURL needed here as we construct full paths below
 const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
@@ -38,7 +43,8 @@ const retryApiCall = async (apiCall, args, retries = DEFAULT_RETRY_COUNT, delay 
  */
 const checkApiAvailability = async () => {
   try {
-    await api.get('/offapi/categories.json', { timeout: 5000 });
+    // Use the determined base URL for the check
+    await api.get(`${API_BASE_URL}/categories.json`, { timeout: 5000 });
     return true;
   } catch (error) {
     console.error('API availability check failed:', error.message);
@@ -99,40 +105,33 @@ api.interceptors.response.use(
 export const getProductsByCategory = async (category, page = 1, pageSize = DEFAULT_PAGE_SIZE) => {
   if (!category) {
     console.error("getProductsByCategory called without a category.");
-    return Promise.reject(new Error("Category is required.")); // Prevent API call without category
+    return Promise.reject(new Error("Category is required."));
   }
-  
+
   try {
-    // Check if API is available
     const apiAvailable = await checkApiAvailability();
-    
     if (!apiAvailable) {
-      // If API is not available, throw an error instead of using mock data
       throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
     }
-    
-    // Try to get data from API with retry mechanism
+
     const apiCallFn = async () => {
-      // Handle single category or multiple categories
+      let categoryName = '';
       if (Array.isArray(category)) {
-        // If multiple categories, use the first one for now
-        // In a real implementation, we would use a more sophisticated approach
-        // like combining results from multiple API calls or using a more advanced API endpoint
         if (category.length === 0) {
           return { products: [], count: 0, page: 1, page_count: 1 };
         }
-        const response = await api.get(`/offapi/category/${category[0]}.json?page=${page}&page_size=${pageSize}`);
-        return response.data;
+        categoryName = category[0]; // Using the first category if multiple
       } else {
-        // Single category (original behavior)
-        const response = await api.get(`/offapi/category/${category}.json?page=${page}&page_size=${pageSize}`);
-        return response.data;
+        categoryName = category;
       }
+      // Construct the full URL based on the environment
+      const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize}`;
+      const response = await api.get(url);
+      return response.data;
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
     console.error(`Error in getProductsByCategory:`, error);
-    // Propagate the error to the UI instead of returning mock data
     throw error;
   }
 };
@@ -146,24 +145,21 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
  */
 export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFAULT_PAGE_SIZE) => {
   try {
-    // Check if API is available
     const apiAvailable = await checkApiAvailability();
-    
     if (!apiAvailable) {
-      // If API is not available, throw an error instead of using mock data
       throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
     }
-    
-    // Try to get data from API with retry mechanism
+
     const encodedSearchTerm = encodeURIComponent(searchTerm);
     const apiCallFn = async () => {
-      const response = await api.get(`/offapi/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`);
+      // Construct the full URL based on the environment
+      const url = `${API_BASE_URL}/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`;
+      const response = await api.get(url);
       return response.data;
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
     console.error(`Error in searchProductsByName for "${searchTerm}":`, error);
-    // Propagate the error to the UI instead of returning mock data
     throw error;
   }
 };
@@ -174,23 +170,20 @@ export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFA
  */
 export const getCategories = async () => {
   try {
-    // Check if API is available
     const apiAvailable = await checkApiAvailability();
-    
     if (!apiAvailable) {
-      // If API is not available, throw an error instead of using mock data
       throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
     }
-    
-    // Try to get data from API with retry mechanism
+
     const apiCallFn = async () => {
-      const response = await api.get('/offapi/categories.json');
+      // Construct the full URL based on the environment
+      const url = `${API_BASE_URL}/categories.json`;
+      const response = await api.get(url);
       return response.data;
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
     console.error('Error in getCategories:', error);
-    // Propagate the error to the UI instead of returning mock data
     throw error;
   }
 };
@@ -203,27 +196,26 @@ export const getCategories = async () => {
 export const getProductByBarcode = async (barcode) => {
   if (!barcode) {
     console.error("getProductByBarcode called without a barcode.");
-    return Promise.reject(new Error("Barcode is required.")); // Prevent API call without barcode
+    return Promise.reject(new Error("Barcode is required."));
   }
-  
+
   try {
-    // Check if API is available
     const apiAvailable = await checkApiAvailability();
-    
     if (!apiAvailable) {
-      // If API is not available, throw an error instead of using mock data
       throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
     }
-    
-    // Try to get data from API with retry mechanism
+
     const apiCallFn = async () => {
-      const response = await api.get(`/offapi/api/v0/product/${barcode}.json`);
+      // Construct the full URL based on the environment
+      // Note: The assignment doc uses /api/v0/ but the original code might implicitly use /api/v2 via proxy?
+      // Assuming v0 based on assignment doc[cite: 23]. Adjust if needed.
+      const url = `${API_BASE_URL}/api/v0/product/${barcode}.json`;
+      const response = await api.get(url);
       return response.data;
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
     console.error(`Error in getProductByBarcode for "${barcode}":`, error);
-    // Propagate the error to the UI instead of returning mock data
     throw error;
   }
 };
