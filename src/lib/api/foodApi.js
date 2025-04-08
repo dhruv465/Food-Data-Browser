@@ -1,12 +1,12 @@
 import axios from 'axios';
 import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT } from '../api-config';
 
-// Define the base URLs
-const PROD_BASE_URL = 'https://world.openfoodfacts.org';
-const DEV_PROXY_PATH = '/offapi'; // Your proxy path defined in vite.config.ts
+// Define the base URLs with CORS proxy
+const CORS_PROXY = 'https://proxy.cors.sh/';
+const OPENFOOD_API = 'https://world.openfoodfacts.org';
 
-// Determine the base URL based on the environment
-const API_BASE_URL = import.meta.env.PROD ? PROD_BASE_URL : DEV_PROXY_PATH;
+// Use CORS proxy in production, direct access in development
+const API_BASE_URL = import.meta.env.PROD ? `${CORS_PROXY}${OPENFOOD_API}` : OPENFOOD_API;
 
 // Create axios instance - No BaseURL needed here as we construct full paths below
 const api = axios.create({
