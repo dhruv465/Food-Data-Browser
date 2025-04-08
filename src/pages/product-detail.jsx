@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { useParams } from "react-router-dom";
-import ProductDetailView from "../components/product/product-detail-view-new";
+import ProductDetailView from "../components/product/product-detail-view";
 import { PageHeader } from "../components/ui/layout";
 import { getProductByBarcode } from "../lib/api/foodApi";
 

@@ -12,10 +12,10 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/offapi': {
+      '/api': {
         target: 'https://world.openfoodfacts.org',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/offapi/, ''),
+        rewrite: (path) => path.replace(/^\/api/, ''),
         secure: false,
       },
     },
