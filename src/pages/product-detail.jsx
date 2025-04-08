@@ -6,8 +6,6 @@ import { PageHeader } from "../components/ui/layout";
 import { getProductByBarcode } from "../lib/api/foodApi";
 
 /**
- * ProductDetailPage component - Redesigned product detail page
- *
  * @returns {JSX.Element} - ProductDetailPage component
  */
 const ProductDetailPage = () => {
