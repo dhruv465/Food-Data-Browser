@@ -1,12 +1,8 @@
 import axios from 'axios';
 import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT } from '../api-config';
 
-// Define the base URLs with CORS proxy
-const CORS_PROXY = 'https://proxy.cors.sh/';
-const OPENFOOD_API = 'https://world.openfoodfacts.org';
-
-// Use CORS proxy in production, direct access in development
-const API_BASE_URL = import.meta.env.PROD ? `${CORS_PROXY}${OPENFOOD_API}` : OPENFOOD_API;
+// Use local Vite proxy endpoint
+const API_BASE_URL = '/offapi';
 
 // Create axios instance - No BaseURL needed here as we construct full paths below
 const api = axios.create({
@@ -207,8 +203,7 @@ export const getProductByBarcode = async (barcode) => {
 
     const apiCallFn = async () => {
       // Construct the full URL based on the environment
-      // Note: The assignment doc uses /api/v0/ but the original code might implicitly use /api/v2 via proxy?
-      // Assuming v0 based on assignment doc[cite: 23]. Adjust if needed.
+      // Using API v0 endpoint through local proxy
       const url = `${API_BASE_URL}/api/v0/product/${barcode}.json`;
       const response = await api.get(url);
       return response.data;
