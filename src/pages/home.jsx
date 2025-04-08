@@ -1,18 +1,20 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import ProductCardNew from "../components/product/product-card";
+import ProductFilters from "../components/product/product-filters";
 import SearchBar from "../components/product/search-bar";
-import { Button } from "../components/ui/button";
 import { getCategories, searchProductsByName } from "../lib/api/foodApi";
 import { useTheme } from "../lib/theme-context";
 
-const HomeRedesigned = () => {
+const Home = () => {
   const location = useLocation();
   const pageSize = 20;
   const [searchTerm, setSearchTerm] = useState("");
   const [availableCategories, setAvailableCategories] = useState([]);
+  const [activeFilters, setActiveFilters] = useState({});
+  const [sortOption, setSortOption] = useState(null);
   const { theme } = useTheme();
 
   // Check URL for search query parameter
@@ -48,8 +50,68 @@ const HomeRedesigned = () => {
     initialPageParam: 1,
   });
 
-  const allProducts =
-    productsData?.pages.flatMap((page) => page.products) || [];
+  const allProducts = useMemo(() => {
+    let products = productsData?.pages.flatMap((page) => page.products) || [];
+
+    // Apply category filters
+    if (activeFilters.categories?.length > 0) {
+      products = products.filter((product) =>
+        activeFilters.categories.some((category) =>
+          product.categories_tags?.some((tag) =>
+            tag.toLowerCase().includes(category.toLowerCase())
+          )
+        )
+      );
+    }
+
+    // Apply nutrition filters
+    if (activeFilters.nutrition) {
+      const { sugar, calories, protein } = activeFilters.nutrition;
+      products = products.filter((product) => {
+        const nutriments = product.nutriments || {};
+        if (sugar !== undefined && nutriments.sugars_100g > sugar) return false;
+        if (calories !== undefined && nutriments.energy_kcal_100g > calories)
+          return false;
+        if (protein !== undefined && nutriments.proteins_100g > protein)
+          return false;
+        return true;
+      });
+    }
+
+    // Apply sorting
+    if (sortOption) {
+      products = [...products].sort((a, b) => {
+        switch (sortOption) {
+          case "name_asc":
+            return (a.product_name || "").localeCompare(b.product_name || "");
+          case "name_desc":
+            return (b.product_name || "").localeCompare(a.product_name || "");
+          case "grade_asc":
+            return (a.nutriscore_grade || "z").localeCompare(
+              b.nutriscore_grade || "z"
+            );
+          case "grade_desc":
+            return (b.nutriscore_grade || "z").localeCompare(
+              a.nutriscore_grade || "z"
+            );
+          case "calories_asc":
+            return (
+              (a.nutriments?.energy_kcal_100g || 0) -
+              (b.nutriments?.energy_kcal_100g || 0)
+            );
+          case "calories_desc":
+            return (
+              (b.nutriments?.energy_kcal_100g || 0) -
+              (a.nutriments?.energy_kcal_100g || 0)
+            );
+          default:
+            return 0;
+        }
+      });
+    }
+
+    return products;
+  }, [productsData, activeFilters, sortOption]);
 
   // Fetch categories
   useEffect(() => {
@@ -118,6 +180,14 @@ const HomeRedesigned = () => {
           </div>
         </div>
       </section>
+
+      {/* Filters Section */}
+      <ProductFilters
+        categories={availableCategories}
+        onFilterChange={setActiveFilters}
+        onSortChange={setSortOption}
+        activeFilters={activeFilters}
+      />
 
       {/* Products Section */}
       <section className="container mx-auto px-4 py-12 relative transition-all duration-300">
@@ -237,4 +307,4 @@ const HomeRedesigned = () => {
   );
 };
 
-export default HomeRedesigned;
+export default Home;
