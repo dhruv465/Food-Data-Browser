@@ -57,9 +57,11 @@ const Home = () => {
     if (activeFilters.categories?.length > 0) {
       products = products.filter((product) =>
         activeFilters.categories.some((category) =>
-          product.categories_tags?.some((tag) =>
-            tag.toLowerCase().includes(category.toLowerCase())
-          )
+          product.categories_tags?.some((tag) => {
+            const normalizedTag = tag.replace('en:', '').split(':').pop().replace(/-/g, ' ').toLowerCase();
+            const normalizedCategory = category.toLowerCase();
+            return normalizedTag === normalizedCategory;
+          })
         )
       );
     }
@@ -70,11 +72,9 @@ const Home = () => {
       products = products.filter((product) => {
         const nutriments = product.nutriments || {};
         if (sugar !== undefined && nutriments.sugars_100g > sugar) return false;
-        if (calories !== undefined && nutriments.energy_kcal_100g > calories)
-          return false;
-        if (protein !== undefined && nutriments.proteins_100g > protein)
-          return false;
-        return true;
+        if (calories !== undefined && nutriments.energy_kcal_100g <= calories) return true;
+        if (protein !== undefined && nutriments.proteins_100g <= protein) return true;
+        return sugar === undefined && calories === undefined && protein === undefined;
       });
     }
 
