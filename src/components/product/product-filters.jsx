@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 
 /**
  * ProductFilters Component
- * 
+ *
  * @param {Object} props
  * @param {string[]} props.categories - Array of available category options
  * @param {Function} props.onFilterChange - Callback when filters change
@@ -22,7 +22,7 @@ const ProductFilters = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activePanel, setActivePanel] = useState(null);
-  
+
   // Default empty filters if not provided
   const safeActiveFilters = activeFilters || {};
 
@@ -102,7 +102,7 @@ const ProductFilters = ({
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="m6 9 6 6 6-6"/>
+                <path d="m6 9 6 6 6-6" />
               </svg>
             </motion.span>
           </Button>
@@ -119,7 +119,9 @@ const ProductFilters = ({
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6">
                 {/* Active Filters Summary */}
-                {(safeActiveFilters.categories?.length > 0 || Object.keys(safeActiveFilters.nutrition || {}).length > 0) && (
+                {(safeActiveFilters.categories?.length > 0 ||
+                  Object.keys(safeActiveFilters.nutrition || {}).length >
+                    0) && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -140,7 +142,9 @@ const ProductFilters = ({
                           onClick={() =>
                             handleFilterChange(
                               "categories",
-                              safeActiveFilters.categories.filter((c) => c !== category)
+                              safeActiveFilters.categories.filter(
+                                (c) => c !== category
+                              )
                             )
                           }
                           className="ml-2 hover:text-destructive transition-colors rounded-full hover:bg-destructive/10 p-0.5"
@@ -161,12 +165,18 @@ const ProductFilters = ({
                             animate={{ scale: 1 }}
                             exit={{ scale: 0 }}
                           >
-                            {range.label}: {value}{range.unit}
+                            {range.label}: {value}
+                            {range.unit}
                             <button
                               onClick={() => {
-                                const updatedNutrition = { ...safeActiveFilters.nutrition };
+                                const updatedNutrition = {
+                                  ...safeActiveFilters.nutrition,
+                                };
                                 delete updatedNutrition[key];
-                                handleFilterChange("nutrition", updatedNutrition);
+                                handleFilterChange(
+                                  "nutrition",
+                                  updatedNutrition
+                                );
                               }}
                               className="ml-2 hover:text-destructive transition-colors rounded-full hover:bg-destructive/10 p-0.5"
                             >
@@ -181,7 +191,9 @@ const ProductFilters = ({
                 {/* Categories Panel */}
                 <motion.div
                   className={`rounded-xl border shadow-sm bg-card p-5 cursor-pointer transition-colors ${
-                    activePanel === "categories" ? "border-primary ring-1 ring-primary" : "hover:border-primary/50"
+                    activePanel === "categories"
+                      ? "border-primary ring-1 ring-primary"
+                      : "hover:border-primary/50"
                   }`}
                   onClick={() => handlePanelClick("categories")}
                   whileHover={{ y: -2 }}
@@ -225,7 +237,9 @@ const ProductFilters = ({
                               const newCategories = currentCategories.includes(
                                 category
                               )
-                                ? currentCategories.filter((c) => c !== category)
+                                ? currentCategories.filter(
+                                    (c) => c !== category
+                                  )
                                 : [...currentCategories, category];
                               handleFilterChange("categories", newCategories);
                             }}
@@ -248,7 +262,9 @@ const ProductFilters = ({
                 {/* Nutrition Ranges Panel */}
                 <motion.div
                   className={`rounded-xl border shadow-sm bg-card p-5 cursor-pointer transition-colors ${
-                    activePanel === "nutrition" ? "border-primary ring-1 ring-primary" : "hover:border-primary/50"
+                    activePanel === "nutrition"
+                      ? "border-primary ring-1 ring-primary"
+                      : "hover:border-primary/50"
                   }`}
                   onClick={() => handlePanelClick("nutrition")}
                   whileHover={{ y: -2 }}
@@ -292,7 +308,8 @@ const ProductFilters = ({
                               min={range.min}
                               max={range.max}
                               value={
-                                safeActiveFilters.nutrition?.[range.id] || range.min
+                                safeActiveFilters.nutrition?.[range.id] ||
+                                range.min
                               }
                               onChange={(e) => {
                                 const value = parseInt(e.target.value);
@@ -306,7 +323,8 @@ const ProductFilters = ({
                             <div className="flex justify-between text-xs text-muted-foreground">
                               <span>{range.min}</span>
                               <span>
-                                {safeActiveFilters.nutrition?.[range.id] || range.min}
+                                {safeActiveFilters.nutrition?.[range.id] ||
+                                  range.min}
                               </span>
                               <span>{range.max}</span>
                             </div>
@@ -320,7 +338,9 @@ const ProductFilters = ({
                 {/* Sort Options Panel */}
                 <motion.div
                   className={`rounded-xl border shadow-sm bg-card p-5 cursor-pointer transition-colors ${
-                    activePanel === "sort" ? "border-primary ring-1 ring-primary" : "hover:border-primary/50"
+                    activePanel === "sort"
+                      ? "border-primary ring-1 ring-primary"
+                      : "hover:border-primary/50"
                   }`}
                   onClick={() => handlePanelClick("sort")}
                   whileHover={{ y: -2 }}
@@ -397,7 +417,9 @@ const ProductFilters = ({
                       onClick={() =>
                         handleFilterChange(
                           "categories",
-                          safeActiveFilters.categories.filter((c) => c !== category)
+                          safeActiveFilters.categories.filter(
+                            (c) => c !== category
+                          )
                         )
                       }
                       className="ml-2 hover:text-destructive"
@@ -418,10 +440,13 @@ const ProductFilters = ({
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
                       >
-                        {range.label}: {value}{range.unit}
+                        {range.label}: {value}
+                        {range.unit}
                         <button
                           onClick={() => {
-                            const updatedNutrition = { ...safeActiveFilters.nutrition };
+                            const updatedNutrition = {
+                              ...safeActiveFilters.nutrition,
+                            };
                             delete updatedNutrition[key];
                             handleFilterChange("nutrition", updatedNutrition);
                           }}
