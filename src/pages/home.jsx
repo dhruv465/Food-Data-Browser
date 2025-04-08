@@ -187,6 +187,7 @@ const Home = () => {
         onFilterChange={setActiveFilters}
         onSortChange={setSortOption}
         activeFilters={activeFilters}
+        onClose={() => setIsExpanded(false)}
       />
 
       {/* Products Section */}

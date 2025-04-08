@@ -5,17 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "../../lib/utils";
 
 const ProductFilters = ({
-  categories = [
-    "Beverages",
-    "Dairy",
-    "Snacks",
-    "Fruits",
-    "Vegetables",
-    "Grains",
-  ],
+  categories = [],
   onFilterChange = () => {},
   onSortChange = () => {},
   activeFilters = {},
+  onClose = () => {},
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeSection, setActiveSection] = useState("categories");
@@ -51,6 +45,7 @@ const ProductFilters = ({
         !filterPanelRef.current.contains(event.target)
       ) {
         setIsExpanded(false);
+        onClose();
       }
       if (
         sortDropdownRef.current &&
@@ -67,7 +62,7 @@ const ProductFilters = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isExpanded, isSortOpen]);
+  }, [isExpanded, isSortOpen, onClose]);
 
   const handleFilterChange = (type, value) => {
     onFilterChange?.({ ...safeActiveFilters, [type]: value });
