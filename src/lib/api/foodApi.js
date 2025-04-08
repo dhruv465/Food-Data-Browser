@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT } from '../api-config';
 
-// Use environment variable for production, fall back to local proxy for development
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/offapi';
+// Use local Vite proxy endpoint
+const API_BASE_URL = '/offapi';
 
 // Create axios instance - No BaseURL needed here as we construct full paths below
 const api = axios.create({
@@ -120,9 +120,8 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
       } else {
         categoryName = category;
       }
-    // Construct the full URL
-    const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize}`;
-
+      // Construct the full URL based on the environment
+      const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize}`;
       const response = await api.get(url);
       return response.data;
     };
@@ -149,7 +148,7 @@ export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFA
 
     const encodedSearchTerm = encodeURIComponent(searchTerm);
     const apiCallFn = async () => {
-      // Construct the full URL
+      // Construct the full URL based on the environment
       const url = `${API_BASE_URL}/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`;
       const response = await api.get(url);
       return response.data;
@@ -173,7 +172,7 @@ export const getCategories = async () => {
     }
 
     const apiCallFn = async () => {
-      // Construct the full URL
+      // Construct the full URL based on the environment
       const url = `${API_BASE_URL}/categories.json`;
       const response = await api.get(url);
       return response.data;
@@ -203,7 +202,8 @@ export const getProductByBarcode = async (barcode) => {
     }
 
     const apiCallFn = async () => {
-      // Construct the full URL
+      // Construct the full URL based on the environment
+      // Using API v0 endpoint through local proxy
       const url = `${API_BASE_URL}/api/v0/product/${barcode}.json`;
       const response = await api.get(url);
       return response.data;
