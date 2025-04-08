@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT } from '../api-config';
 
 // Use local Vite proxy endpoint
-const API_BASE_URL = '/offapi';
+const API_BASE_URL = '/newapi';
 
 // Create axios instance - No BaseURL needed here as we construct full paths below
 const api = axios.create({

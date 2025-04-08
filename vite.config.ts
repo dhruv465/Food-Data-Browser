@@ -15,7 +15,7 @@ export default defineConfig({
       '/offapi': {
         target: 'https://world.openfoodfacts.org',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/offapi/, ''),
+        rewrite: (path) => path.replace(/^\/newapi/, ''),
         secure: false,
       },
     },
