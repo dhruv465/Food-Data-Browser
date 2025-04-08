@@ -1,3 +1,5 @@
+// --- START OF FILE vite.config.ts ---
+
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
@@ -10,14 +12,15 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  server: {
-    proxy: {
-      '/offapi': {
-        target: 'https://world.openfoodfacts.org',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/offapi/, ''),
-        secure: false,
-      },
-    },
-  },
+  // server: { // Proxy block can be removed or commented out
+  //   proxy: {
+  //     '/offapi': {
+  //       target: 'https://world.openfoodfacts.org',
+  //       changeOrigin: true,
+  //       rewrite: (path) => path.replace(/^\/offapi/, ''),
+  //       secure: false, // Keep false unless specific SSL issues arise
+  //     },
+  //   },
+  // },
 })
+// --- END OF FILE vite.config.ts ---
