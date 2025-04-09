@@ -8,13 +8,22 @@ const OUR_PROXY_ENDPOINT = '/api/food';
 
 // List of potential CORS proxies to try if direct requests fail (as fallbacks)
 const CORS_PROXIES = [
+  'https://cors.sh/?', // Primary CORS proxy with API key
   'https://corsproxy.io/?',
   'https://cors-anywhere.herokuapp.com/',
   'https://api.allorigins.win/raw?url='
 ];
 
+// Headers for cors.sh API
+const CORS_SH_HEADERS = {
+  'x-cors-api-key': 'temp_648291871f51611ccc30183a96ea2071', // Replace with your actual API key
+};
+
 // Base URL for OpenFoodFacts API
 const OPENFOODFACTS_BASE_URL = 'https://world.openfoodfacts.org';
+
+// Flag to determine if we should use cors.sh as primary proxy
+const USE_CORS_SH = true;
 
 /**
  * Creates a URL with a CORS proxy
