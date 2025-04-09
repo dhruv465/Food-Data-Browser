@@ -1,5 +1,10 @@
 {
   "rewrites": [
+  
+    {
+      "source": "/offapi/(.*)",
+      "destination": "https://world.openfoodfacts.org/$1"
+    },
     { "source": "/(.*)", "destination": "/" }
   ]
 }
