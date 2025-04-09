@@ -6,9 +6,9 @@
 // CORS.sh proxy URL
 const CORS_SH_PROXY = 'https://cors.sh/?';
 
-// Headers for cors.sh API
-const CORS_SH_HEADERS = {
-  'x-cors-api-key': import.meta.env.VITE_CORS_SH_API_KEY || '', // Use env variable
+// Minimal headers for API requests
+const API_HEADERS = {
+  'Accept': 'application/json'
 };
 
 // Base URL for OpenFoodFacts API
@@ -36,9 +36,7 @@ export const fetchWithCorsProxy = async (url, options = {}) => {
     mode: 'cors',
     headers: {
       ...options.headers,
-      ...CORS_SH_HEADERS,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      ...API_HEADERS
     }
   };
   
@@ -47,11 +45,11 @@ export const fetchWithCorsProxy = async (url, options = {}) => {
                    url.startsWith('/offapi') ? url.replace('/offapi', OPENFOODFACTS_BASE_URL) : 
                    url;
   
-  // Create the proxied URL
-  const proxiedUrl = createProxiedUrl(targetUrl);
+  // Use target URL directly (OpenFoodFacts API supports CORS)
+  const requestUrl = targetUrl;
   
   try {
-    const response = await fetch(proxiedUrl, fetchOptions);
+    const response = await fetch(requestUrl, fetchOptions);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -59,7 +57,7 @@ export const fetchWithCorsProxy = async (url, options = {}) => {
     
     return await response.json();
   } catch (error) {
-    console.error('Fetch with cors.sh proxy failed:', error.message);
+    console.error('API request failed:', error.message);
     throw error;
   }
 };
