@@ -9,9 +9,8 @@ const api = axios.create({
   timeout: 10000, // 10 seconds timeout
 });
 
-// Determine the base URL based on the environment
-const isProduction = window.location.hostname !== 'localhost';
-const API_BASE_URL = isProduction ? 'https://world.openfoodfacts.org' : getApiBaseUrl();
+// Use the /offapi path for all API calls
+const API_BASE_URL = '/offapi'; // Set to use the proxy path
 
 // Utility function to retry a failed API call with exponential backoff
 const retryApiCall = async (apiCall, args, retries = DEFAULT_RETRY_COUNT, delay = 1000) => {
@@ -30,7 +29,7 @@ const retryApiCall = async (apiCall, args, retries = DEFAULT_RETRY_COUNT, delay 
 // Check if the API is available
 const checkApiAvailability = async () => {
   try {
-    await api.get(`${API_BASE_URL}/categories.json`, { timeout: 5000 }); // Updated to use the direct API URL
+    await api.get(`${API_BASE_URL}/categories.json`, { timeout: 5000 }); // Use the proxy path
     return true;
   } catch (error) {
     console.error('API availability check failed:', error.message);
@@ -97,7 +96,7 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
       } else {
         categoryName = category;
       }
-      const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize}`; // Updated to use the direct API URL
+      const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize}`; // Use the proxy path
       const response = await api.get(url);
       return response.data;
     };
@@ -118,7 +117,7 @@ export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFA
 
     const encodedSearchTerm = encodeURIComponent(searchTerm);
     const apiCallFn = async () => {
-      const url = `${API_BASE_URL}/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`; // Updated to use the direct API URL
+      const url = `${API_BASE_URL}/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`; // Use the proxy path
       const response = await api.get(url);
       return response.data;
     };
@@ -138,7 +137,7 @@ export const getCategories = async () => {
     }
 
     const apiCallFn = async () => {
-      const url = `${API_BASE_URL}/categories.json`; // Updated to use the direct API URL
+      const url = `${API_BASE_URL}/categories.json`; // Use the proxy path
       const response = await api.get(url);
       return response.data;
     };
@@ -163,7 +162,7 @@ export const getProductByBarcode = async (barcode) => {
     }
 
     const apiCallFn = async () => {
-      const url = `${API_BASE_URL}/api/v0/product/${barcode}.json`; // Updated to use the direct API URL
+      const url = `${API_BASE_URL}/api/v0/product/${barcode}.json`; // Use the proxy path
       const response = await api.get(url);
       return response.data;
     };
