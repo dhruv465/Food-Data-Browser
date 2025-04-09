@@ -1,10 +1,7 @@
 import axios from 'axios';
 import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT, getApiBaseUrl } from '../api-config'; // Importing getApiBaseUrl
 
-// Use appropriate API base URL based on environment
-const API_BASE_URL = getApiBaseUrl();
-
-// Create axios instance - No BaseURL needed here as we construct full paths below
+// Create axios instance
 const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
@@ -12,14 +9,11 @@ const api = axios.create({
   timeout: 10000, // 10 seconds timeout
 });
 
-/**
- * Utility function to retry a failed API call with exponential backoff
- * @param {Function} apiCall - The API call function to retry
- * @param {Array} args - Arguments to pass to the API call function
- * @param {number} retries - Number of retries remaining
- * @param {number} delay - Delay between retries in ms
- * @returns {Promise} - Promise with the response data or error
- */
+// Determine the base URL based on the environment
+const isProduction = window.location.hostname !== 'localhost';
+const API_BASE_URL = isProduction ? 'https://world.openfoodfacts.org' : getApiBaseUrl();
+
+// Utility function to retry a failed API call with exponential backoff
 const retryApiCall = async (apiCall, args, retries = DEFAULT_RETRY_COUNT, delay = 1000) => {
   try {
     return await apiCall(...args);
@@ -33,14 +27,10 @@ const retryApiCall = async (apiCall, args, retries = DEFAULT_RETRY_COUNT, delay 
   }
 };
 
-/**
- * Check if the API is available
- * @returns {Promise<boolean>} - Promise that resolves to true if API is available, false otherwise
- */
+// Check if the API is available
 const checkApiAvailability = async () => {
   try {
-    // Use the determined base URL for the check
-    await api.get(`/offapi/categories.json`, { timeout: 5000 }); // Updated to use /offapi
+    await api.get(`${API_BASE_URL}/categories.json`, { timeout: 5000 }); // Updated to use the direct API URL
     return true;
   } catch (error) {
     console.error('API availability check failed:', error.message);
@@ -84,13 +74,7 @@ api.interceptors.response.use(
   }
 );
 
-/**
- * Get products by category
- * @param {string|string[]} category - Category name or array of category names
- * @param {number} page - Page number for pagination
- * @param {number} pageSize - Number of items per page
- * @returns {Promise} - Promise with the response data
- */
+// Get products by category
 export const getProductsByCategory = async (category, page = 1, pageSize = DEFAULT_PAGE_SIZE) => {
   if (!category) {
     console.error("getProductsByCategory called without a category.");
@@ -113,7 +97,7 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
       } else {
         categoryName = category;
       }
-      const url = `/offapi/category/${categoryName}.json?page=${page}&page_size=${pageSize}`; // Updated to use /offapi
+      const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize}`; // Updated to use the direct API URL
       const response = await api.get(url);
       return response.data;
     };
@@ -124,13 +108,7 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
   }
 };
 
-/**
- * Search products by name
- * @param {string} searchTerm - Search term
- * @param {number} page - Page number for pagination
- * @param {number} pageSize - Number of items per page
- * @returns {Promise} - Promise with the response data
- */
+// Search products by name
 export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFAULT_PAGE_SIZE) => {
   try {
     const apiAvailable = await checkApiAvailability();
@@ -140,7 +118,7 @@ export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFA
 
     const encodedSearchTerm = encodeURIComponent(searchTerm);
     const apiCallFn = async () => {
-      const url = `/offapi/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`; // Updated to use /offapi
+      const url = `${API_BASE_URL}/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`; // Updated to use the direct API URL
       const response = await api.get(url);
       return response.data;
     };
@@ -151,10 +129,7 @@ export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFA
   }
 };
 
-/**
- * Get categories
- * @returns {Promise} - Promise with the response data
- */
+// Get categories
 export const getCategories = async () => {
   try {
     const apiAvailable = await checkApiAvailability();
@@ -163,7 +138,7 @@ export const getCategories = async () => {
     }
 
     const apiCallFn = async () => {
-      const url = `/offapi/categories.json`; // Updated to use /offapi
+      const url = `${API_BASE_URL}/categories.json`; // Updated to use the direct API URL
       const response = await api.get(url);
       return response.data;
     };
@@ -174,11 +149,7 @@ export const getCategories = async () => {
   }
 };
 
-/**
- * Get product by barcode
- * @param {string} barcode - Product barcode
- * @returns {Promise} - Promise with the response data
- */
+// Get product by barcode
 export const getProductByBarcode = async (barcode) => {
   if (!barcode) {
     console.error("getProductByBarcode called without a barcode.");
@@ -192,7 +163,7 @@ export const getProductByBarcode = async (barcode) => {
     }
 
     const apiCallFn = async () => {
-      const url = `/offapi/api/v0/product/${barcode}.json`; // Updated to use /offapi
+      const url = `${API_BASE_URL}/api/v0/product/${barcode}.json`; // Updated to use the direct API URL
       const response = await api.get(url);
       return response.data;
     };
