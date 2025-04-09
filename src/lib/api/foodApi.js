@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT } from '../api-config';
-import { fetchWithCorsProxy, isContentBlockerEnvironment, getApiBaseUrl } from './cors-proxy';
+import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT, getApiBaseUrl } from '../api-config'; // Added import for getApiBaseUrl
 
 // Use appropriate API base URL based on environment
 const API_BASE_URL = getApiBaseUrl();
@@ -41,13 +40,7 @@ const retryApiCall = async (apiCall, args, retries = DEFAULT_RETRY_COUNT, delay 
 const checkApiAvailability = async () => {
   try {
     // Use the determined base URL for the check
-    if (isContentBlockerEnvironment()) {
-      // Try with CORS proxy if we're in an environment likely to have content blockers
-      await fetchWithCorsProxy(`${API_BASE_URL}/categories.json`);
-    } else {
-      // Use regular axios in development or when content blockers are unlikely
-      await api.get(`${API_BASE_URL}/categories.json`, { timeout: 5000 });
-    }
+    await api.get(`${API_BASE_URL}/categories.json`, { timeout: 5000 });
     return true;
   } catch (error) {
     console.error('API availability check failed:', error.message);
@@ -58,8 +51,6 @@ const checkApiAvailability = async () => {
 // Request interceptor for API calls
 api.interceptors.request.use(
   (config) => {
-    // You could add additional headers or auth tokens here if needed
-    // console.log('Making API request:', config.url); // Optional: Log requests for debugging
     return config;
   },
   (error) => {
@@ -73,24 +64,19 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Transform error messages to be more user-friendly
     if (error.response) {
-      // Server responded with a status code outside the 2xx range
       console.error("API Error Response:", error.response);
       if (error.response.status === 404) {
         error.message = ERROR_MESSAGES.NOT_FOUND;
       } else if (error.response.status >= 500) {
         error.message = ERROR_MESSAGES.SERVER_ERROR;
       } else {
-        // Include status code for other client errors
         error.message = `API request failed with status ${error.response.status}`;
       }
     } else if (error.request) {
-      // The request was made but no response was received
       console.error("API No Response:", error.request);
       error.message = ERROR_MESSAGES.NETWORK_ERROR;
     } else {
-      // Something happened in setting up the request
       console.error("API Request Setup Error:", error.message);
       error.message = ERROR_MESSAGES.GENERAL_ERROR;
     }
@@ -127,17 +113,9 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
       } else {
         categoryName = category;
       }
-      // Construct the full URL based on the environment
       const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize}`;
-      
-      // Use CORS proxy in environments likely to have content blockers
-      if (isContentBlockerEnvironment()) {
-        return await fetchWithCorsProxy(url);
-      } else {
-        // Use regular axios in development or when content blockers are unlikely
-        const response = await api.get(url);
-        return response.data;
-      }
+      const response = await api.get(url);
+      return response.data;
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
@@ -162,17 +140,9 @@ export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFA
 
     const encodedSearchTerm = encodeURIComponent(searchTerm);
     const apiCallFn = async () => {
-      // Construct the full URL based on the environment
       const url = `${API_BASE_URL}/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`;
-      
-      // Use CORS proxy in environments likely to have content blockers
-      if (isContentBlockerEnvironment()) {
-        return await fetchWithCorsProxy(url);
-      } else {
-        // Use regular axios in development or when content blockers are unlikely
-        const response = await api.get(url);
-        return response.data;
-      }
+      const response = await api.get(url);
+      return response.data;
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
@@ -193,17 +163,9 @@ export const getCategories = async () => {
     }
 
     const apiCallFn = async () => {
-      // Construct the full URL based on the environment
       const url = `${API_BASE_URL}/categories.json`;
-      
-      // Use CORS proxy in environments likely to have content blockers
-      if (isContentBlockerEnvironment()) {
-        return await fetchWithCorsProxy(url);
-      } else {
-        // Use regular axios in development or when content blockers are unlikely
-        const response = await api.get(url);
-        return response.data;
-      }
+      const response = await api.get(url);
+      return response.data;
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
@@ -230,18 +192,9 @@ export const getProductByBarcode = async (barcode) => {
     }
 
     const apiCallFn = async () => {
-      // Construct the full URL based on the environment
-      // Using API v0 endpoint through local proxy
       const url = `${API_BASE_URL}/api/v0/product/${barcode}.json`;
-      
-      // Use CORS proxy in environments likely to have content blockers
-      if (isContentBlockerEnvironment()) {
-        return await fetchWithCorsProxy(url);
-      } else {
-        // Use regular axios in development or when content blockers are unlikely
-        const response = await api.get(url);
-        return response.data;
-      }
+      const response = await api.get(url);
+      return response.data;
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {

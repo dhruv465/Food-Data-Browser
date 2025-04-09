@@ -25,6 +25,11 @@ export const MAX_REQUESTS_PER_MINUTE = 60;
 // All requests are handled through cors.sh proxy
 export const PROXY_ENDPOINT = '';
 
+// Function to get the base URL for the OpenFoodFacts API
+export const getApiBaseUrl = () => {
+  return 'https://world.openfoodfacts.org'; // Updated base URL
+};
+
 // Configure React Query defaults
 export const queryClientConfig = {
   defaultOptions: {
