@@ -9,6 +9,7 @@ import { startBarcodeDetection, stopBarcodeDetection } from "../../lib/barcode-d
 
 /**
  * CameraBarcodeScanner component - Camera-based barcode scanner for mobile devices
+ * Automatically scans barcodes when camera is active without requiring manual button press
  *
  * @param {Object} props - Component props
  * @param {string} props.className - Additional CSS classes
@@ -25,6 +26,9 @@ const CameraBarcodeScanner = ({ className, onBarcodeDetected, ...props }) => {
   const [facingMode, setFacingMode] = useState("environment"); // Default to back camera
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  
+  // Auto-scan timeout reference
+  const autoScanTimeoutRef = useRef(null);
 
   // Request camera permission
   const requestCameraPermission = useCallback(async () => {
@@ -54,11 +58,22 @@ const CameraBarcodeScanner = ({ className, onBarcodeDetected, ...props }) => {
   useEffect(() => {
     if (isCameraActive) {
       const cleanup = requestCameraPermission();
+      
+      // Automatically start scanning when camera becomes active
+      // Small delay to ensure camera is fully initialized
+      autoScanTimeoutRef.current = setTimeout(() => {
+        setIsScanning(true);
+      }, 1000);
+      
       return () => {
         if (cleanup && typeof cleanup === 'function') {
           cleanup();
         }
+        if (autoScanTimeoutRef.current) {
+          clearTimeout(autoScanTimeoutRef.current);
+        }
         setIsCameraActive(false);
+        setIsScanning(false);
       };
     }
   }, [isCameraActive, requestCameraPermission]);
@@ -151,19 +166,25 @@ const CameraBarcodeScanner = ({ className, onBarcodeDetected, ...props }) => {
     setDetectedBarcode("");
   };
 
-  // Start scanning
-  const startScanning = () => {
-    setIsScanning(true);
+  // Reset scanning state and try again
+  const resetScanning = () => {
     setDetectedBarcode("");
     setErrorMessage("");
-  };
-
-  // Stop scanning
-  const stopScanning = () => {
+    // Restart scanning
     setIsScanning(false);
-    if (scannerRef.current) {
-      stopBarcodeDetection(scannerRef.current);
-      scannerRef.current = null;
+    setTimeout(() => setIsScanning(true), 300);
+  };
+  
+  // Pause scanning temporarily
+  const pauseScanning = () => {
+    if (isScanning) {
+      setIsScanning(false);
+      if (scannerRef.current) {
+        stopBarcodeDetection(scannerRef.current);
+        scannerRef.current = null;
+      }
+    } else {
+      setIsScanning(true);
     }
   };
 
@@ -227,7 +248,7 @@ const CameraBarcodeScanner = ({ className, onBarcodeDetected, ...props }) => {
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
             <circle cx="12" cy="13" r="4" />
           </svg>
-          Open Camera to Scan Barcode
+          Open Camera to Auto-Scan Barcode
         </Button>
       )}
 
@@ -259,13 +280,18 @@ const CameraBarcodeScanner = ({ className, onBarcodeDetected, ...props }) => {
               </div>
               
               {/* Scanning status text */}
-              {isScanning && (
-                <div className="absolute bottom-8 left-0 right-0 text-center">
-                  <p className="text-white bg-black/50 py-1 px-3 rounded-full inline-block text-sm">
-                    Scanning...
-                  </p>
-                </div>
-              )}
+              <div className="absolute bottom-8 left-0 right-0 text-center">
+                <p className={cn(
+                  "py-1 px-3 rounded-full inline-block text-sm",
+                  isScanning 
+                    ? "text-white bg-primary/70 animate-pulse" 
+                    : "text-white bg-black/50"
+                )}>
+                  {isScanning 
+                    ? "Scanning automatically... Point at barcode" 
+                    : "Tap to resume scanning"}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -292,14 +318,35 @@ const CameraBarcodeScanner = ({ className, onBarcodeDetected, ...props }) => {
               </svg>
             </Button>
 
-            {/* Scan button */}
+            {/* Pause/Resume scanning button */}
             <Button
-              onClick={isScanning ? stopScanning : startScanning}
-              variant={isScanning ? "destructive" : "default"}
-              disabled={!isCameraActive}
-              className="px-6"
+              onClick={pauseScanning}
+              variant={isScanning ? "default" : "outline"}
+              size="sm"
+              className="px-4"
             >
-              {isScanning ? "Cancel Scan" : "Start Scanning"}
+              {isScanning ? (
+                <>
+                  <div className="h-2 w-2 rounded-full bg-background mr-2 animate-pulse"></div>
+                  <span>Auto-Scanning</span>
+                </>
+              ) : (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  <span>Resume</span>
+                </>
+              )}
             </Button>
 
             {/* Switch camera button (only on mobile) */}
@@ -336,9 +383,9 @@ const CameraBarcodeScanner = ({ className, onBarcodeDetected, ...props }) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setDetectedBarcode("")}
+              onClick={resetScanning}
             >
-              Clear
+              Scan Again
             </Button>
           </div>
           
@@ -355,9 +402,11 @@ const CameraBarcodeScanner = ({ className, onBarcodeDetected, ...props }) => {
       )}
 
       {/* Instructions */}
-      {isCameraActive && !detectedBarcode && !isScanning && (
-        <div className="text-center text-sm text-muted-foreground">
-          <p>Position the barcode within the frame and tap "Start Scanning"</p>
+      {isCameraActive && !detectedBarcode && (
+        <div className="text-center text-sm text-muted-foreground mt-2">
+          <p>{isScanning 
+            ? "Just point your camera at a barcode - it will scan automatically" 
+            : "Scanning paused. Tap 'Resume' to continue scanning."}</p>
         </div>
       )}
     </div>
