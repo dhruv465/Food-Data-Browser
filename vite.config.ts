@@ -15,11 +15,11 @@ export default defineConfig({
   server: {
     proxy: {
       // Keep the original proxy configuration using '/offapi'
-      '/offapi': { // <--- CORRECT: Use original '/offapi'
+      '/offapi': {
         target: 'https://world.openfoodfacts.org',
         changeOrigin: true,
         // Rewrite the path to remove '/offapi' before forwarding
-        rewrite: (path) => path.replace(/^\/offapi/, ''), // <--- CORRECT: Rewrite '/offapi'
+        rewrite: (path) => path.replace(/^\/offapi/, ''),
         secure: false,
       },
     },

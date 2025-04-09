@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT, getApiBaseUrl } from '../api-config'; // Added import for getApiBaseUrl
+import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT, getApiBaseUrl } from '../api-config'; // Importing getApiBaseUrl
 
 // Use appropriate API base URL based on environment
 const API_BASE_URL = getApiBaseUrl();
@@ -40,7 +40,7 @@ const retryApiCall = async (apiCall, args, retries = DEFAULT_RETRY_COUNT, delay 
 const checkApiAvailability = async () => {
   try {
     // Use the determined base URL for the check
-    await api.get(`${API_BASE_URL}/categories.json`, { timeout: 5000 });
+    await api.get(`/offapi/categories.json`, { timeout: 5000 }); // Updated to use /offapi
     return true;
   } catch (error) {
     console.error('API availability check failed:', error.message);
@@ -113,7 +113,7 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
       } else {
         categoryName = category;
       }
-      const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize}`;
+      const url = `/offapi/category/${categoryName}.json?page=${page}&page_size=${pageSize}`; // Updated to use /offapi
       const response = await api.get(url);
       return response.data;
     };
@@ -140,7 +140,7 @@ export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFA
 
     const encodedSearchTerm = encodeURIComponent(searchTerm);
     const apiCallFn = async () => {
-      const url = `${API_BASE_URL}/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`;
+      const url = `/offapi/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`; // Updated to use /offapi
       const response = await api.get(url);
       return response.data;
     };
@@ -163,7 +163,7 @@ export const getCategories = async () => {
     }
 
     const apiCallFn = async () => {
-      const url = `${API_BASE_URL}/categories.json`;
+      const url = `/offapi/categories.json`; // Updated to use /offapi
       const response = await api.get(url);
       return response.data;
     };
@@ -192,7 +192,7 @@ export const getProductByBarcode = async (barcode) => {
     }
 
     const apiCallFn = async () => {
-      const url = `${API_BASE_URL}/api/v0/product/${barcode}.json`;
+      const url = `/offapi/api/v0/product/${barcode}.json`; // Updated to use /offapi
       const response = await api.get(url);
       return response.data;
     };
