@@ -3,7 +3,10 @@
  * Provides fallback mechanisms for API requests when deployed on Vercel
  */
 
-// List of potential CORS proxies to try if direct requests fail
+// Our dedicated serverless proxy endpoint
+const OUR_PROXY_ENDPOINT = '/api/food';
+
+// List of potential CORS proxies to try if direct requests fail (as fallbacks)
 const CORS_PROXIES = [
   'https://corsproxy.io/?',
   'https://cors-anywhere.herokuapp.com/',
@@ -52,27 +55,50 @@ export const fetchWithCorsProxy = async (url, options = {}) => {
     }
   };
   
-  // In production, start with a proxy right away instead of trying direct access first
-  let proxyIndex = process.env.NODE_ENV === 'production' ? 0 : -1;
+  // First try our dedicated serverless proxy in production
+  let useOurProxy = process.env.NODE_ENV === 'production';
+  // Fallback to public CORS proxies if our proxy fails
+  let proxyIndex = -1;
   let currentUrl = url;
   let attempts = 0;
-  const maxAttempts = CORS_PROXIES.length + 1; // +1 for the original URL if we start with no proxy
+  const maxAttempts = CORS_PROXIES.length + 2; // +1 for our proxy, +1 for direct request
   
-  // If we're starting with a proxy, prepare the URL
-  if (proxyIndex === 0) {
-    // If the URL is already absolute, use it directly
-    const targetUrl = url.startsWith('http') ? url : 
-                     // If it's a relative URL starting with /offapi, replace with the actual base URL
-                     url.startsWith('/offapi') ? url.replace('/offapi', OPENFOODFACTS_BASE_URL) : 
-                     // Otherwise, just use the URL as is
-                     url;
+  // If we're using our proxy, prepare the URL
+  if (useOurProxy) {
+    // Extract the path from the URL
+    let path = '';
     
-    currentUrl = createProxiedUrl(targetUrl, 0);
+    if (url.startsWith('http')) {
+      // For absolute URLs, extract the path after the domain
+      const urlObj = new URL(url);
+      path = urlObj.pathname + urlObj.search;
+    } else if (url.startsWith('/offapi')) {
+      // For /offapi URLs, extract the path after /offapi
+      path = url.replace('/offapi', '');
+    } else {
+      // For other URLs, use as is
+      path = url;
+    }
+    
+    // Remove leading slash if present
+    if (path.startsWith('/')) {
+      path = path.substring(1);
+    }
+    
+    // Use our serverless proxy
+    currentUrl = `${OUR_PROXY_ENDPOINT}/${path}`;
   }
   
   while (attempts < maxAttempts) {
     try {
-      console.log(`Attempting fetch with ${proxyIndex >= 0 ? 'proxy ' + (proxyIndex + 1) : 'no proxy'}`);
+      if (useOurProxy) {
+        console.log(`Attempting fetch with our serverless proxy`);
+      } else if (proxyIndex >= 0) {
+        console.log(`Attempting fetch with public proxy ${proxyIndex + 1}`);
+      } else {
+        console.log(`Attempting direct fetch`);
+      }
+      
       const response = await fetch(currentUrl, fetchOptions);
       
       if (!response.ok) {
@@ -83,21 +109,34 @@ export const fetchWithCorsProxy = async (url, options = {}) => {
     } catch (error) {
       console.error(`Fetch attempt ${attempts + 1}/${maxAttempts} failed:`, error.message);
       attempts++;
-      proxyIndex++;
       
-      // Try the next proxy
-      if (proxyIndex < CORS_PROXIES.length) {
-        // If the URL is already absolute, use it directly
+      // If we were using our proxy, switch to public proxies
+      if (useOurProxy) {
+        useOurProxy = false;
+        proxyIndex = 0;
+        
+        // Prepare URL for public proxy
         const targetUrl = url.startsWith('http') ? url : 
-                         // If it's a relative URL starting with /offapi, replace with the actual base URL
                          url.startsWith('/offapi') ? url.replace('/offapi', OPENFOODFACTS_BASE_URL) : 
-                         // Otherwise, just use the URL as is
                          url;
         
         currentUrl = createProxiedUrl(targetUrl, proxyIndex);
       } else {
-        // We've tried all proxies, throw the error
-        throw error;
+        // Move to next public proxy
+        proxyIndex++;
+        
+        // Try the next proxy
+        if (proxyIndex < CORS_PROXIES.length) {
+          // Prepare URL for public proxy
+          const targetUrl = url.startsWith('http') ? url : 
+                           url.startsWith('/offapi') ? url.replace('/offapi', OPENFOODFACTS_BASE_URL) : 
+                           url;
+          
+          currentUrl = createProxiedUrl(targetUrl, proxyIndex);
+        } else {
+          // We've tried all proxies, throw the error
+          throw error;
+        }
       }
     }
   }
@@ -116,7 +155,7 @@ export const isContentBlockerEnvironment = () => {
   // Check if we're in a browser environment
   const isBrowser = typeof window !== 'undefined';
   
-  // Always use CORS proxy in production to avoid CORS issues
+  // Always use our dedicated proxy in production to avoid CORS issues
   // This is especially important for Vercel deployments
   return isProduction;
 };

@@ -34,12 +34,28 @@ export default async function handler(req, res) {
     
     console.log(`Proxying request to: ${url}`);
     
-    // Fetch data from OpenFoodFacts API
+    // Fetch data from OpenFoodFacts API with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'FoodDataBrowser/1.0 (https://food-data-browser.vercel.app)'
-      }
+        'User-Agent': 'FoodDataBrowser/1.0 (https://food-data-browser.vercel.app)',
+        'Accept': 'application/json'
+      },
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
+    
+    // Check if response is OK
+    if (!response.ok) {
+      console.error(`API responded with status: ${response.status}`);
+      return res.status(response.status).json({ 
+        error: `OpenFoodFacts API responded with status: ${response.status}`,
+        message: response.statusText
+      });
+    }
     
     // Get the response data
     const data = await response.json();
@@ -48,6 +64,19 @@ export default async function handler(req, res) {
     return res.status(200).json(data);
   } catch (error) {
     console.error('Proxy error:', error);
-    return res.status(500).json({ error: 'Failed to fetch data from OpenFoodFacts API' });
+    
+    // Handle specific error types
+    if (error.name === 'AbortError') {
+      return res.status(504).json({ error: 'Request timeout while fetching data from OpenFoodFacts API' });
+    }
+    
+    if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+      return res.status(503).json({ error: 'OpenFoodFacts API is currently unavailable' });
+    }
+    
+    return res.status(500).json({ 
+      error: 'Failed to fetch data from OpenFoodFacts API',
+      message: error.message
+    });
   }
 }
