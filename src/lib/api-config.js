@@ -21,6 +21,9 @@ export const DEFAULT_PAGE_SIZE = 24;
 // API rate limiting - max requests per minute
 export const MAX_REQUESTS_PER_MINUTE = 60;
 
+// Custom proxy endpoint for OpenFoodFacts API
+export const PROXY_ENDPOINT = '/api/food';
+
 // Configure React Query defaults
 export const queryClientConfig = {
   defaultOptions: {
