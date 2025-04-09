@@ -5,6 +5,18 @@ const API_BASE_URL = 'https://world.openfoodfacts.org/api/v2';
 
 // Helper function to handle API errors
 const handleApiError = (error) => {
+  // Check if the error might be related to content blockers
+  const isContentBlockerError = 
+    error.message?.includes('ERR_BLOCKED_BY_CONTENT_BLOCKER') ||
+    error.message?.includes('content blocker') ||
+    error.message?.includes('sentry.io');
+  
+  if (isContentBlockerError) {
+    console.warn('Content blocker detected. This may affect error reporting but API calls should continue.');
+    // For content blocker errors, log but don't throw to prevent breaking the app
+    return { error: ERROR_MESSAGES.GENERAL_ERROR };
+  }
+  
   if (!navigator.onLine) {
     throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
   }
@@ -26,19 +38,41 @@ export function useProduct(productId) {
     ['product', productId],
     async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/product/${productId}`);
+        // Add timeout to prevent hanging requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        const response = await fetch(`${API_BASE_URL}/product/${productId}`, {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         return data.product;
       } catch (error) {
-        handleApiError(error);
+        // If aborted due to timeout
+        if (error.name === 'AbortError') {
+          console.error('Request timed out');
+          throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
+        }
+        
+        const result = handleApiError(error);
+        // If handleApiError returns a result instead of throwing (for content blocker errors)
+        if (result) return {};
+        
+        // This will only execute if handleApiError didn't throw or return
+        throw error;
       }
     },
     {
       enabled: !!productId,
       suspense: true,
+      retry: 2,
+      retryDelay: 1000,
     }
   );
 }
@@ -55,13 +89,33 @@ export function useProductSearch(searchQuery) {
           page: pageParam,
         });
 
-        const response = await fetch(`${API_BASE_URL}/search?${params}`);
+        // Add timeout to prevent hanging requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        const response = await fetch(`${API_BASE_URL}/search?${params}`, {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
       } catch (error) {
-        handleApiError(error);
+        // If aborted due to timeout
+        if (error.name === 'AbortError') {
+          console.error('Request timed out');
+          throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
+        }
+        
+        const result = handleApiError(error);
+        // If handleApiError returns a result instead of throwing (for content blocker errors)
+        if (result) return { products: [], count: 0, page: pageParam, page_count: 1 };
+        
+        // This will only execute if handleApiError didn't throw or return
+        throw error;
       }
     },
     {
@@ -72,6 +126,8 @@ export function useProductSearch(searchQuery) {
         return currentPage < totalPages ? currentPage + 1 : undefined;
       },
       suspense: true,
+      retry: 2,
+      retryDelay: 1000,
     }
   );
 }
@@ -82,19 +138,41 @@ export function useProductByBarcode(barcode) {
     ['product', 'barcode', barcode],
     async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/product/${barcode}`);
+        // Add timeout to prevent hanging requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        const response = await fetch(`${API_BASE_URL}/product/${barcode}`, {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         return data.product;
       } catch (error) {
-        handleApiError(error);
+        // If aborted due to timeout
+        if (error.name === 'AbortError') {
+          console.error('Request timed out');
+          throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
+        }
+        
+        const result = handleApiError(error);
+        // If handleApiError returns a result instead of throwing (for content blocker errors)
+        if (result) return {};
+        
+        // This will only execute if handleApiError didn't throw or return
+        throw error;
       }
     },
     {
       enabled: !!barcode,
       suspense: true,
+      retry: 2,
+      retryDelay: 1000,
     }
   );
 }

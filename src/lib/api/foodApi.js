@@ -66,6 +66,16 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    // Check if the error might be related to content blockers
+    const isContentBlockerError = 
+      error.message?.includes('ERR_BLOCKED_BY_CONTENT_BLOCKER') ||
+      error.message?.includes('content blocker') ||
+      error.message?.includes('sentry.io');
+    
+    if (isContentBlockerError) {
+      console.warn('Content blocker detected. This may affect error reporting but API calls should still work.');
+    }
+    
     // Transform error messages to be more user-friendly
     if (error.response) {
       // Server responded with a status code outside the 2xx range
@@ -87,6 +97,16 @@ api.interceptors.response.use(
       console.error("API Request Setup Error:", error.message);
       error.message = ERROR_MESSAGES.GENERAL_ERROR;
     }
+    
+    // If this is a content blocker error for Sentry, don't let it affect the app
+    if (isContentBlockerError) {
+      console.info('Continuing despite content blocker error');
+      // Return a fake successful response to prevent app from breaking
+      if (error.config && error.config.url && error.config.url.includes('sentry.io')) {
+        return Promise.resolve({ data: {}, status: 200 });
+      }
+    }
+    
     return Promise.reject(error);
   }
 );

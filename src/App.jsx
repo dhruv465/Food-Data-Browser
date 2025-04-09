@@ -1,10 +1,14 @@
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./lib/theme-context";
 import { queryClientConfig } from "./lib/api-config";
+import { initializeErrorHandling } from "./lib/error-handling";
 import AppLayout from "./components/ui/app-layout";
 import "./index.css"; // Global styles
+
+// Initialize error handling as early as possible
+initializeErrorHandling();
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import("./pages/home"));
