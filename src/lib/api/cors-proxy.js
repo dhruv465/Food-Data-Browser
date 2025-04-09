@@ -51,7 +51,8 @@ export const fetchWithCorsProxy = async (url, options = {}) => {
     mode: 'cors',
     headers: {
       ...options.headers,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
     }
   };
   
@@ -170,6 +171,7 @@ export const getApiBaseUrl = () => {
     return '/offapi';
   }
   
-  // In production, use the actual API URL
-  return OPENFOODFACTS_BASE_URL;
+  // In production, use our dedicated serverless proxy
+  // This ensures we avoid CORS issues completely
+  return '/api/food';
 };
