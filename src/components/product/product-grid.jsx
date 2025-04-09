@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "../../lib/utils";
 import { useTheme } from "../../lib/theme-context";
 import { applyGlass } from "../../lib/glassmorphism";
-import { Button } from '../ui/button';
+import { Button } from "../ui/button";
 import ProductCardNew from "./product-card";
 
 /**
@@ -28,12 +28,13 @@ const ProductGrid = ({
   const [allProducts, setAllProducts] = useState(initialProducts);
 
   // Fetch products using React Query if fetchFn is provided
-  const { data, isLoading, isError, error, isFetching, isPreviousData } = useQuery({
-    queryKey: queryKey,
-    queryFn: () => fetchFn?.(page, pageSize),
-    enabled: !!fetchFn,
-    keepPreviousData: true,
-  });
+  const { data, isLoading, isError, error, isFetching, isPreviousData } =
+    useQuery({
+      queryKey: queryKey,
+      queryFn: () => fetchFn?.(page, pageSize),
+      enabled: !!fetchFn,
+      keepPreviousData: true,
+    });
 
   // Update allProducts when new data is fetched
   useEffect(() => {
@@ -41,14 +42,14 @@ const ProductGrid = ({
       if (page === 1) {
         setAllProducts(data.products);
       } else {
-        setAllProducts(prev => [...prev, ...data.products]);
+        setAllProducts((prev) => [...prev, ...data.products]);
       }
     }
   }, [data, page]);
 
   // Handle load more button click
   const handleLoadMore = () => {
-    setPage(prevPage => prevPage + 1);
+    setPage((prevPage) => prevPage + 1);
   };
   const { theme } = useTheme();
 
@@ -126,14 +127,30 @@ const ProductGrid = ({
           >
             {isFetching ? (
               <>
-                <svg className="mr-2 h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="mr-2 h-4 w-4 animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
                 Loading...
               </>
             ) : (
-              'Load More'
+              "Load More"
             )}
           </Button>
         </div>
@@ -212,11 +229,11 @@ export const ProductCard = ({ product, className, ...props }) => {
 
       {/* Product Info */}
       <div className="flex flex-col p-4">
-        <h3 className="font-medium text-lg mb-1 line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+        <h3 className="font-medium text-lg mb-1 line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors truncate">
           {product.name}
         </h3>
 
-        <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+        <p className="text-muted-foreground text-sm mb-3 line-clamp-1">
           {product.brand || "UN"}
         </p>
 

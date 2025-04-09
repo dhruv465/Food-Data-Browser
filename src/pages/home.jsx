@@ -202,50 +202,6 @@ const Home = () => {
       {/* Products Section */}
       <section className="container mx-auto px-4 py-1 relative transition-all duration-300">
         {/* Main Content Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6"
-        >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">
-                {searchTerm
-                  ? `Search Results for "${searchTerm}"`
-                  : "Featured Products"}
-              </h2>
-              <p className="text-muted-foreground text-sm">
-                {allProducts.length} products found
-              </p>
-            </div>
-            {searchTerm && (
-              <button
-                onClick={() => {
-                  setSearchTerm("");
-                  window.history.pushState({}, "", "/");
-                }}
-                className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-md transition-colors flex items-center gap-1"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-                Clear Search
-              </button>
-            )}
-          </div>
-        </motion.div>
 
         {productsError ? (
           <div className="text-center py-12">
