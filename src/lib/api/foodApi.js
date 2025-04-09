@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { ERROR_MESSAGES, DEFAULT_PAGE_SIZE, DEFAULT_RETRY_COUNT } from '../api-config';
+import { fetchWithCorsProxy, isContentBlockerEnvironment, getApiBaseUrl } from './cors-proxy';
 
-// Use local Vite proxy endpoint
-const API_BASE_URL = '/offapi';
+// Use appropriate API base URL based on environment
+const API_BASE_URL = getApiBaseUrl();
 
 // Create axios instance - No BaseURL needed here as we construct full paths below
 const api = axios.create({
@@ -40,7 +41,13 @@ const retryApiCall = async (apiCall, args, retries = DEFAULT_RETRY_COUNT, delay 
 const checkApiAvailability = async () => {
   try {
     // Use the determined base URL for the check
-    await api.get(`${API_BASE_URL}/categories.json`, { timeout: 5000 });
+    if (isContentBlockerEnvironment()) {
+      // Try with CORS proxy if we're in an environment likely to have content blockers
+      await fetchWithCorsProxy(`${API_BASE_URL}/categories.json`);
+    } else {
+      // Use regular axios in development or when content blockers are unlikely
+      await api.get(`${API_BASE_URL}/categories.json`, { timeout: 5000 });
+    }
     return true;
   } catch (error) {
     console.error('API availability check failed:', error.message);
@@ -66,16 +73,6 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Check if the error might be related to content blockers
-    const isContentBlockerError = 
-      error.message?.includes('ERR_BLOCKED_BY_CONTENT_BLOCKER') ||
-      error.message?.includes('content blocker') ||
-      error.message?.includes('sentry.io');
-    
-    if (isContentBlockerError) {
-      console.warn('Content blocker detected. This may affect error reporting but API calls should still work.');
-    }
-    
     // Transform error messages to be more user-friendly
     if (error.response) {
       // Server responded with a status code outside the 2xx range
@@ -97,16 +94,6 @@ api.interceptors.response.use(
       console.error("API Request Setup Error:", error.message);
       error.message = ERROR_MESSAGES.GENERAL_ERROR;
     }
-    
-    // If this is a content blocker error for Sentry, don't let it affect the app
-    if (isContentBlockerError) {
-      console.info('Continuing despite content blocker error');
-      // Return a fake successful response to prevent app from breaking
-      if (error.config && error.config.url && error.config.url.includes('sentry.io')) {
-        return Promise.resolve({ data: {}, status: 200 });
-      }
-    }
-    
     return Promise.reject(error);
   }
 );
@@ -142,8 +129,15 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
       }
       // Construct the full URL based on the environment
       const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize}`;
-      const response = await api.get(url);
-      return response.data;
+      
+      // Use CORS proxy in environments likely to have content blockers
+      if (isContentBlockerEnvironment()) {
+        return await fetchWithCorsProxy(url);
+      } else {
+        // Use regular axios in development or when content blockers are unlikely
+        const response = await api.get(url);
+        return response.data;
+      }
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
@@ -170,8 +164,15 @@ export const searchProductsByName = async (searchTerm, page = 1, pageSize = DEFA
     const apiCallFn = async () => {
       // Construct the full URL based on the environment
       const url = `${API_BASE_URL}/cgi/search.pl?search_terms=${encodedSearchTerm}&json=true&page=${page}&page_size=${pageSize}`;
-      const response = await api.get(url);
-      return response.data;
+      
+      // Use CORS proxy in environments likely to have content blockers
+      if (isContentBlockerEnvironment()) {
+        return await fetchWithCorsProxy(url);
+      } else {
+        // Use regular axios in development or when content blockers are unlikely
+        const response = await api.get(url);
+        return response.data;
+      }
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
@@ -194,8 +195,15 @@ export const getCategories = async () => {
     const apiCallFn = async () => {
       // Construct the full URL based on the environment
       const url = `${API_BASE_URL}/categories.json`;
-      const response = await api.get(url);
-      return response.data;
+      
+      // Use CORS proxy in environments likely to have content blockers
+      if (isContentBlockerEnvironment()) {
+        return await fetchWithCorsProxy(url);
+      } else {
+        // Use regular axios in development or when content blockers are unlikely
+        const response = await api.get(url);
+        return response.data;
+      }
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
@@ -225,8 +233,15 @@ export const getProductByBarcode = async (barcode) => {
       // Construct the full URL based on the environment
       // Using API v0 endpoint through local proxy
       const url = `${API_BASE_URL}/api/v0/product/${barcode}.json`;
-      const response = await api.get(url);
-      return response.data;
+      
+      // Use CORS proxy in environments likely to have content blockers
+      if (isContentBlockerEnvironment()) {
+        return await fetchWithCorsProxy(url);
+      } else {
+        // Use regular axios in development or when content blockers are unlikely
+        const response = await api.get(url);
+        return response.data;
+      }
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
