@@ -1,7 +1,7 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { DEFAULT_PAGE_SIZE, ERROR_MESSAGES } from '../api-config';
 
-const API_BASE_URL = 'https://world.openfoodfacts.org/api/v2';
+const API_BASE_URL = 'https://world.openfoodfacts.org/';
 
 // Helper function to handle API errors
 const handleApiError = (error) => {
