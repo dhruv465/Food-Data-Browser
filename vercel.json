@@ -1,9 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/api/food/:path*",
-      "destination": "/api/proxy?path=:path*"
-    },
     { "source": "/(.*)", "destination": "/" }
   ],
   "headers": [

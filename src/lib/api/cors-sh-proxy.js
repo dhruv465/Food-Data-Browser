@@ -3,13 +3,12 @@
  * This file provides a dedicated implementation for using cors.sh as a CORS proxy
  */
 
-// CORS.sh proxy URL with API key
-// The API key should be provided by the user
+// CORS.sh proxy URL
 const CORS_SH_PROXY = 'https://cors.sh/?';
 
 // Headers required for cors.sh
 const CORS_SH_HEADERS = {
-  'x-cors-api-key': 'YOUR_API_KEY_HERE', // Replace with your actual API key
+  'x-cors-api-key': process.env.CORS_SH_API_KEY || '', // Use environment variable
 };
 
 /**
