@@ -1,11 +1,19 @@
 {
   "rewrites": [
-   
     {
       "source": "/offapi/(.*)", 
-      "destination": "https://world.openfoodfacts.org/" 
+      "destination": "https://world.openfoodfacts.org/$1"
     },
-  
     { "source": "/(.*)", "destination": "/" }
+  ],
+  "headers": [
+    {
+      "source": "/offapi/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-Requested-With, Content-Type, Accept" }
+      ]
+    }
   ]
 }

@@ -42,16 +42,38 @@ export const createProxiedUrl = (url, proxyIndex = 0) => {
  * @returns {Promise<Object>} - The response data
  */
 export const fetchWithCorsProxy = async (url, options = {}) => {
-  // First try the original URL (which might be using Vercel rewrites)
+  // Ensure we have proper fetch options with CORS mode
+  const fetchOptions = {
+    ...options,
+    mode: 'cors',
+    headers: {
+      ...options.headers,
+      'Content-Type': 'application/json'
+    }
+  };
+  
+  // In production, start with a proxy right away instead of trying direct access first
+  let proxyIndex = process.env.NODE_ENV === 'production' ? 0 : -1;
   let currentUrl = url;
-  let proxyIndex = -1; // Start with no proxy
   let attempts = 0;
-  const maxAttempts = CORS_PROXIES.length + 1; // +1 for the original URL
+  const maxAttempts = CORS_PROXIES.length + 1; // +1 for the original URL if we start with no proxy
+  
+  // If we're starting with a proxy, prepare the URL
+  if (proxyIndex === 0) {
+    // If the URL is already absolute, use it directly
+    const targetUrl = url.startsWith('http') ? url : 
+                     // If it's a relative URL starting with /offapi, replace with the actual base URL
+                     url.startsWith('/offapi') ? url.replace('/offapi', OPENFOODFACTS_BASE_URL) : 
+                     // Otherwise, just use the URL as is
+                     url;
+    
+    currentUrl = createProxiedUrl(targetUrl, 0);
+  }
   
   while (attempts < maxAttempts) {
     try {
       console.log(`Attempting fetch with ${proxyIndex >= 0 ? 'proxy ' + (proxyIndex + 1) : 'no proxy'}`);
-      const response = await fetch(currentUrl, options);
+      const response = await fetch(currentUrl, fetchOptions);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -94,8 +116,9 @@ export const isContentBlockerEnvironment = () => {
   // Check if we're in a browser environment
   const isBrowser = typeof window !== 'undefined';
   
-  // In the future, we could add more sophisticated detection
-  return isProduction && isBrowser;
+  // Always use CORS proxy in production to avoid CORS issues
+  // This is especially important for Vercel deployments
+  return isProduction;
 };
 
 /**
