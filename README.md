@@ -1,106 +1,177 @@
-# Food Product Explorer
+# Food Data Browser
 
-A modern web application that allows users to search, filter, and view detailed information about food products using the OpenFoodFacts API.
+A modern web application for browsing and searching food product data, built with React and the Open Food Facts API.
+
+## Problem Solving Approach
+
+### 1. Understanding Requirements
+- Analyzed the core requirements for food product browsing and search
+- Identified key features needed: search, filtering, product details, and barcode scanning
+- Determined the need for real-time updates and responsive design
+
+### 2. Architecture Design
+- Chose React for component-based architecture
+- Implemented React Query for efficient data management
+- Designed a modular structure for components and pages
+- Planned state management strategy using Context and URL parameters
+
+### 3. Implementation Strategy
+- **Search Functionality**
+  - Implemented debounced search to optimize API calls
+  - Added URL synchronization for shareable searches
+  - Created clear search functionality with proper state management
+  - Ensured search results update in real-time
+
+- **Product Display**
+  - Designed responsive grid layout for product cards
+  - Implemented detailed product view with nutrition information
+  - Added image handling with fallback support
+  - Created blurred background effect for product images
+
+- **Barcode Scanner**
+  - Implemented real-time barcode detection
+  - Added example barcodes for testing
+  - Created error handling and user feedback
+  - Designed side-by-side layout for preview and examples
+
+### 4. Testing and Optimization
+- Performed component testing for search functionality
+- Optimized performance with lazy loading and debouncing
+- Ensured responsive design across devices
+- Implemented error boundaries for graceful error handling
+
+### 5. Challenges and Solutions
+- **Challenge**: Search state persistence and clearing
+  - **Solution**: Implemented URL-based state management using `useLocation` and `useSearchParams`
+  - **Solution**: Created `handleClearSearch` function that:
+    - Resets search term state
+    - Updates URL to remove search parameters
+    - Prevents URL from overriding cleared state
+    - Maintains synchronization between input and URL
+  - **Solution**: Added debounced search to prevent excessive API calls
+  - **Solution**: Implemented proper state cleanup on component unmount
+
+- **Challenge**: Image loading and optimization
+  - **Solution**: Added fallback images with `onError` handlers
+  - **Solution**: Implemented blurred background effect using:
+    - Separate background image container
+    - `blur-xl` and `scale-110` classes for zoom effect
+    - Semi-transparent overlay for depth
+    - Proper aspect ratio maintenance
+  - **Solution**: Created responsive image containers with:
+    - `object-contain` for proper scaling
+    - `aspect-square` for consistent dimensions
+    - Centered positioning with flexbox
+    - Proper error state handling
+
+- **Challenge**: Real-time barcode scanning
+  - **Solution**: Created side-by-side layout using:
+    - Grid layout for larger screens
+    - Stack layout for mobile
+    - Consistent gradient backgrounds
+    - Proper spacing and padding
+  - **Solution**: Added example barcodes with:
+    - Vertical stack layout
+    - Full-width buttons
+    - Clear visual hierarchy
+    - Responsive design
+  - **Solution**: Implemented error handling with:
+    - Clear error messages
+    - Visual feedback
+    - Proper state management
+    - User-friendly instructions
+
+- **Challenge**: State Management and Performance
+  - **Solution**: Implemented React Query for:
+    - Efficient data fetching
+    - Automatic caching
+    - Background updates
+    - Error handling
+  - **Solution**: Used Context API for:
+    - Theme management
+    - Global state sharing
+    - Performance optimization
+    - Clean component structure
+  - **Solution**: Added proper cleanup with:
+    - useEffect cleanup functions
+    - State reset on unmount
+    - Memory leak prevention
+    - Resource optimization
 
 ## Features
 
-- **Product Listing**: Browse food products with pagination and smooth loading states
-- **Search Functionality**: Search products by name with debounced API requests
-- **Barcode Search**: Find products by scanning or entering barcodes
-- **Advanced Filtering & Sorting**: Filter by multiple categories, nutritional values, and sort by various criteria
-- **Detailed Product View**: View comprehensive product information including ingredients, nutrition facts, and labels
-- **Dark Mode**: Toggle between light and dark themes for comfortable viewing
-- **Responsive Design**: Optimized for all device sizes from mobile to desktop
-- **Performance Optimized**: Implements caching, lazy loading, and efficient API handling
+- 🔍 Advanced search functionality with real-time results
+- 📱 Responsive design for all devices
+- 🎨 Modern UI with dark/light theme support
+- 📊 Detailed product information display
+- 🏷️ Barcode scanning capability
+- 🎯 Filtering and sorting options
+- 🔄 Infinite scroll for seamless browsing
 
-## Technology Stack
+## Implementation Details
 
-- **React**: Frontend library for building the user interface
-- **React Router**: For navigation and routing
-- **React Query**: For efficient API state management and caching
-- **Axios**: For HTTP requests
-- **Tailwind CSS**: For styling with utility classes
-- **Glassmorphism UI**: Modern UI design with blur effects and transparency
+### Search Functionality
+- Implemented using React Query for efficient data fetching and caching
+- Debounced search to prevent excessive API calls
+- URL synchronization for shareable search results
+- Clear search functionality with proper state management
+
+### Product Display
+- Responsive grid layout for product cards
+- Detailed product view with nutrition information
+- Image handling with fallback support
+- Blurred background effect for product images
+
+### Barcode Scanner
+- Real-time barcode detection
+- Example barcodes for testing
+- Error handling and user feedback
+- Side-by-side layout for preview and examples
+
+### State Management
+- React Context for theme management
+- URL-based state for search parameters
+- Local state for UI interactions
+- Proper cleanup and memory management
+
+### Performance Optimizations
+- Lazy loading of components
+- Image optimization
+- Debounced API calls
+- Efficient state updates
+
+## Time Taken
+- Initial setup and basic structure: 2 hours
+- Search functionality implementation: 3 hours
+- Product display and detail view: 4 hours
+- Barcode scanner implementation: 3 hours
+- UI/UX improvements and refinements: 2 hours
+- Testing and bug fixes: 2 hours
+
+Total time: Approximately 16 hours
+
+## Technologies Used
+- React
+- React Query
+- Tailwind CSS
+- Open Food Facts API
+- React Router
+- Framer Motion
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js (v16 or higher)
-- npm or pnpm package manager
-
-### Installation
-
 1. Clone the repository
-```bash
-git clone <repository-url>
-cd food-product-explorer
-```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-2. Install dependencies
-```bash
-pnpm install
-```
-
-3. Start the development server
-```bash
-pnpm run dev
-```
-
-4. Open your browser and navigate to `http://localhost:5173`
-
-## Usage
-
-- **Home Page**: Browse popular food categories and products
-- **Search Page**: Search for products by name
-- **Barcode Page**: Find products by entering a barcode
-- **Filter Page**: Use advanced filtering and sorting options
-- **Product Detail**: Click on any product to view detailed information
-
-## API Integration
-
-This application uses the [OpenFoodFacts API](https://world.openfoodfacts.org/) to fetch food product data:
-
-- Get Products by Category: `https://world.openfoodfacts.org/category/{category}.json`
-- Search Products by Name: `https://world.openfoodfacts.org/cgi/search.pl?search_terms={name}&json=true`
-- Get Product by Barcode: `https://world.openfoodfacts.org/api/v0/product/{barcode}.json`
-
-## Deployment
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
-
-## Project Structure
-
-```
-food-product-explorer/
-├── public/              # Static assets
-├── src/
-│   ├── components/      # Reusable UI components
-│   │   ├── product/     # Product-specific components
-│   │   └── ui/          # Generic UI components with glassmorphism
-│   ├── lib/             # Utility functions and API clients
-│   │   └── api/         # API integration
-│   ├── pages/           # Page components
-│   ├── App.jsx          # Main application component
-│   ├── index.css        # Global styles
-│   └── main.jsx         # Application entry point
-├── DEPLOYMENT.md        # Deployment instructions
-└── README.md            # Project documentation
-```
-
-## Performance Optimizations
-
-- Lazy loading of page components
-- API response caching with React Query
-- Debounced search to prevent excessive API calls
-- Error boundary for graceful error handling
-- Optimized image loading with fallbacks
+## Contributing
+Feel free to submit issues and enhancement requests.
 
 ## License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## Acknowledgements
-
-- [OpenFoodFacts](https://world.openfoodfacts.org/) for providing the API
-- All the contributors who have helped with the development of this project
+This project is licensed under the MIT License.
