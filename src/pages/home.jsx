@@ -15,7 +15,25 @@ const Home = () => {
   const [availableCategories, setAvailableCategories] = useState([]);
   const [activeFilters, setActiveFilters] = useState({});
   const [sortOption, setSortOption] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
   const { theme } = useTheme();
+
+  // Handle search submission
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    if (term.trim()) {
+      const newUrl = `/?q=${encodeURIComponent(term.trim())}`;
+      window.history.pushState({ path: newUrl }, "", newUrl);
+    } else {
+      window.history.pushState({}, "", "/");
+    }
+  };
+
+  // Handle clear search
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    window.history.pushState({}, "", "/");
+  };
 
   // Check URL for search query parameter
   useEffect(() => {
@@ -23,6 +41,8 @@ const Home = () => {
     const queryTerm = queryParams.get("q");
     if (queryTerm) {
       setSearchTerm(queryTerm);
+    } else {
+      setSearchTerm("");
     }
   }, [location.search]);
 
@@ -80,7 +100,7 @@ const Home = () => {
         // Check if any nutritional value exceeds the filter threshold
         if (sugar !== undefined && nutriments.sugars_100g > sugar) return false;
         if (calories !== undefined && nutriments.energy_kcal_100g > calories) return false;
-        if (protein !== undefined && nutriments.proteins_100g > protein) return false;
+        if (protein !== undefined && nutriments.proteins_100g < protein) return false;
         
         return true;
       });
@@ -121,6 +141,15 @@ const Home = () => {
     return products;
   }, [productsData, activeFilters, sortOption]);
 
+  // Handle filter changes and clear all filters
+const handleFilterChange = (filters) => {
+    setActiveFilters(filters);
+};
+
+const handleClearAllFilters = () => {
+    setActiveFilters({});
+};
+
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
@@ -135,22 +164,33 @@ const Home = () => {
               .join(" ");
           });
           setAvailableCategories(topCategories);
+          console.log("Fetched categories:", topCategories);
+        } else {
+          // Fallback categories if API doesn't return expected format
+          setDefaultCategories();
         }
       } catch (error) {
         console.error("Error fetching categories:", error);
-        setAvailableCategories([
-          "Beverages",
-          "Dairy",
-          "Snacks",
-          "Fruits",
-          "Vegetables",
-          "Grains",
-          "Proteins",
-          "Condiments",
-          "Desserts",
-          "Bakery",
-        ]);
+        // Set default categories on error
+        setDefaultCategories();
       }
+    };
+
+    const setDefaultCategories = () => {
+      const defaultCats = [
+        "Beverages",
+        "Dairy",
+        "Snacks",
+        "Fruits",
+        "Vegetables",
+        "Grains",
+        "Proteins",
+        "Condiments",
+        "Desserts",
+        "Bakery",
+      ];
+      setAvailableCategories(defaultCats);
+      console.log("Using default categories:", defaultCats);
     };
 
     fetchCategories();
@@ -174,16 +214,9 @@ const Home = () => {
           <div className="w-full max-w-xl mx-auto space-y-4">
             <SearchBar
               className="bg-white/10 backdrop-blur-md border-white/20 shadow-lg"
-              onSearch={(term) => {
-                setSearchTerm(term);
-                if (term.trim()) {
-                  const newUrl = `/?q=${encodeURIComponent(term.trim())}`;
-                  window.history.pushState({ path: newUrl }, "", newUrl);
-                } else {
-                  window.history.pushState({}, "", "/");
-                }
-              }}
+              onSearch={handleSearch}
               initialValue={searchTerm}
+              onClear={handleClearSearch}
             />
           </div>
         </div>
@@ -191,8 +224,9 @@ const Home = () => {
 
       {/* Filters Section */}
       <ProductFilters
+        onClearAllFilters={handleClearAllFilters}
         categories={availableCategories}
-        onFilterChange={setActiveFilters}
+        onFilterChange={handleFilterChange}
         onSortChange={setSortOption}
         activeFilters={activeFilters}
         onClose={() => setIsExpanded(false)}
@@ -236,7 +270,7 @@ const Home = () => {
                 >
                   <p className="text-lg font-medium mb-2">No products found</p>
                   <p className="text-muted-foreground">
-                    Try adjusting your search term
+                    Try adjusting your search term or filters
                   </p>
                 </motion.div>
               )}

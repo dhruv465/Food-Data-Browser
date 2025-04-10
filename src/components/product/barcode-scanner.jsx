@@ -89,28 +89,147 @@ const BarcodeScanner = ({ className, ...props }) => {
 
   return (
     <div className={cn("w-full", className)} {...props}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <div className="relative">
-            <input
-              type="text"
-              value={barcode}
-              onChange={handleChange}
-              placeholder="Enter product barcode (e.g., 3017620422003)"
-              className={cn(
-                "w-full px-4 py-2 border rounded-md bg-background",
-                "focus:outline-none focus:ring-2 focus:ring-primary",
-                !isValid && "border-destructive focus:ring-destructive"
-              )}
-              aria-invalid={!isValid}
-              aria-describedby={!isValid ? "barcode-error" : undefined}
-            />
+      {/* Main Search Section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10 p-8">
+        <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,white,transparent)]" />
+
+        <div className="relative space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Barcode Search
+            </h2>
+            <p className="text-muted-foreground">
+              Enter a product barcode to find detailed nutritional information
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex gap-2">
+              <div className="relative flex-1 group">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-primary/60 group-focus-within:text-primary"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+                <input
+                  id="barcode-input"
+                  type="text"
+                  value={barcode}
+                  onChange={handleChange}
+                  placeholder="Enter barcode number..."
+                  className={cn(
+                    "w-full pl-10 pr-10 py-3.5 border-0 rounded-xl bg-white/80 backdrop-blur-sm",
+                    "focus:outline-none focus:ring-2 focus:ring-primary/20",
+                    "placeholder:text-muted-foreground/60",
+                    "transition-all duration-200",
+                    !isValid && "ring-2 ring-destructive/20"
+                  )}
+                  aria-invalid={!isValid}
+                  aria-describedby={!isValid ? "barcode-error" : undefined}
+                />
+                {barcode && (
+                  <button
+                    onClick={() => setBarcode("")}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-primary/40 hover:text-primary/60"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                )}
+                {!isValid && (
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-destructive"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                className="px-6 py-3.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <svg
+                    className="animate-spin h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                )}
+              </Button>
+            </div>
 
             {!isValid && (
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <p
+                id="barcode-error"
+                className="text-sm text-destructive flex items-center gap-1.5"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-destructive"
+                  className="h-4 w-4"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -120,131 +239,151 @@ const BarcodeScanner = ({ className, ...props }) => {
                     clipRule="evenodd"
                   />
                 </svg>
-              </div>
+                {errorMessage}
+              </p>
             )}
-          </div>
-
-          {!isValid && (
-            <p id="barcode-error" className="text-sm text-destructive">
-              {errorMessage}
-            </p>
-          )}
+          </form>
         </div>
-
-        <div className="flex space-x-2">
-          <Button
-            type="submit"
-            className="w-full sm:w-auto"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Searching...
-              </>
-            ) : (
-              <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
-                </svg>
-                Search Barcode
-              </>
-            )}
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setBarcode("")}
-            disabled={!barcode}
-          >
-            Clear
-          </Button>
-        </div>
-      </form>
-
-      {/* Display barcode image when valid barcode is entered */}
-      {showBarcodeImage && (
-        <div className="mt-4 p-4 border rounded-md bg-background">
-          <p className="text-sm font-medium mb-2">Barcode Preview:</p>
-          <BarcodeImage
-            barcode={barcode.trim()}
-            format="EAN13"
-            height={80}
-            className="max-w-full bg-white p-3 rounded-md border"
-          />
-        </div>
-      )}
-
-      {apiError && (
-        <div className="mt-4 p-4 border border-destructive rounded-md bg-destructive/10">
-          <p className="text-destructive font-medium">Error</p>
-          <p className="text-sm">{apiError}</p>
-        </div>
-      )}
-
-      <div className="mt-6 p-4 border rounded-md bg-muted/50">
-        <h3 className="text-sm font-medium mb-2">Example Barcodes to Try:</h3>
-        <ul className="space-y-1 text-sm">
-          <li>
-            <button
-              onClick={() => setBarcode("3017620422003")}
-              className="text-primary hover:underline"
-            >
-              3017620422003
-            </button>
-            <span className="text-muted-foreground ml-2">(Nutella)</span>
-          </li>
-          <li>
-            <button
-              onClick={() => setBarcode("5449000000996")}
-              className="text-primary hover:underline"
-            >
-              5449000000996
-            </button>
-            <span className="text-muted-foreground ml-2">(Coca-Cola)</span>
-          </li>
-          <li>
-            <button
-              onClick={() => setBarcode("7622210449283")}
-              className="text-primary hover:underline"
-            >
-              7622210449283
-            </button>
-            <span className="text-muted-foreground ml-2">(Oreo)</span>
-          </li>
-        </ul>
       </div>
+
+      {/* Barcode Preview and Examples Section */}
+      <div className="mt-6">
+        {showBarcodeImage ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Example Barcodes */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10">
+              <h3 className="text-lg font-medium mb-2">
+                Try these example barcodes
+              </h3>
+              <div className="space-y-1">
+                {[
+                  { code: "3017620422003", name: "Nutella" },
+                  { code: "5449000000996", name: "Coca-Cola" },
+                  { code: "7622210449283", name: "Oreo" },
+                ].map((item) => (
+                  <button
+                    key={item.code}
+                    onClick={() => setBarcode(item.code)}
+                    className="w-full flex items-center justify-between py-2 px-3 rounded-lg hover:bg-white/80 transition-colors duration-200"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-primary">
+                        {item.code}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {item.name}
+                      </span>
+                    </div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-primary/40"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Barcode Preview Section */}
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium">Barcode Preview</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Format: EAN-13
+                  </span>
+                  <div className="h-4 w-px bg-border" />
+                  <span className="text-sm text-muted-foreground">
+                    {barcode.trim().length} digits
+                  </span>
+                </div>
+              </div>
+              <div className="p-4 rounded-xl bg-white/80 backdrop-blur-sm border border-primary/10">
+                <BarcodeImage
+                  barcode={barcode.trim()}
+                  format="EAN13"
+                  height={80}
+                  className="max-w-full"
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Example Barcodes (when no preview) */
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10">
+            <h3 className="text-lg font-medium mb-2">
+              Try these example barcodes
+            </h3>
+            <div className="space-y-1">
+              {[
+                { code: "3017620422003", name: "Nutella" },
+                { code: "5449000000996", name: "Coca-Cola" },
+                { code: "7622210449283", name: "Oreo" },
+              ].map((item) => (
+                <button
+                  key={item.code}
+                  onClick={() => setBarcode(item.code)}
+                  className="w-full flex items-center justify-between py-2 px-3 rounded-lg hover:bg-white/80 transition-colors duration-200"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-primary">{item.code}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {item.name}
+                    </span>
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-primary/40"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Error Message */}
+      {apiError && (
+        <div className="mt-6 p-6 rounded-2xl bg-destructive/5 border border-destructive/10">
+          <div className="flex items-start gap-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-destructive mt-0.5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <div>
+              <p className="text-destructive font-medium">Error</p>
+              <p className="text-sm text-destructive/80">{apiError}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -58,7 +58,7 @@ const BarcodePage = () => {
         description="Find detailed nutritional information by scanning or entering a product barcode."
       />
 
-      <div className="max-w-xl mx-auto mt-4">
+      <div className="max-w-4xl mx-auto mt-8">
         {/* Success animation overlay */}
         {scanSuccess && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-sm">
@@ -165,172 +165,171 @@ const BarcodePage = () => {
             </TabsContent>
 
             <TabsContent value="manual">
-              <div className="rounded-lg border p-4">
-                <BarcodeScanner />
-              </div>
+              <BarcodeScanner />
             </TabsContent>
           </div>
         </Tabs>
 
-        <PageSection title="About Barcode Search" className="mt-8">
-          <div className="rounded-lg border bg-card p-6">
-            <p className="text-muted-foreground mb-4">
-              Barcode search allows you to quickly find specific products in our
-              database.
-              {activeTab === "camera" ? (
-                <>
-                  Simply position the product barcode within the camera frame
-                  and we'll automatically detect and look up the product
-                  information.
-                </>
-              ) : (
-                <>
-                  Simply enter the product's barcode (typically 8-14 digits
-                  found under the barcode on packaging) and we'll retrieve all
-                  available information.
-                </>
-              )}
-            </p>
-            <p className="text-muted-foreground">
-              This feature is perfect for checking nutritional information while
-              shopping or to quickly look up products you have at home.
-            </p>
-          </div>
-        </PageSection>
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <PageSection title="About Barcode Search" className="mt-0">
+            <div className="rounded-lg border bg-card p-6">
+              <p className="text-muted-foreground mb-4">
+                Barcode search allows you to quickly find specific products in our
+                database.
+                {activeTab === "camera" ? (
+                  <>
+                    Simply position the product barcode within the camera frame
+                    and we'll automatically detect and look up the product
+                    information.
+                  </>
+                ) : (
+                  <>
+                    Simply enter the product's barcode (typically 8-14 digits
+                    found under the barcode on packaging) and we'll retrieve all
+                    available information.
+                  </>
+                )}
+              </p>
+              <p className="text-muted-foreground">
+                This feature is perfect for checking nutritional information while
+                shopping or to quickly look up products you have at home.
+              </p>
+            </div>
+          </PageSection>
 
-        {/* Tips for scanning - always show but with different content based on active tab */}
-        <PageSection
-          title={
-            activeTab === "camera"
-              ? "Tips for Better Scanning"
-              : "Tips for Finding Barcodes"
-          }
-          className="mt-4"
-        >
-          <div className="rounded-lg border bg-card p-6">
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              {activeTab === "camera" ? (
-                <>
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 mr-2 text-primary flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span>
-                      Ensure good lighting for better barcode detection
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 mr-2 text-primary flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span>
-                      Hold the camera steady and position the barcode within the
-                      frame
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 mr-2 text-primary flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span>
-                      If scanning fails, try switching to manual entry mode
-                    </span>
-                  </li>
-                </>
-              ) : (
-                <>
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 mr-2 text-primary flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span>
-                      Barcodes are typically found on the back or bottom of
-                      product packaging
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 mr-2 text-primary flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span>
-                      Most food products use EAN-13 barcodes (13 digits) or
-                      UPC-A (12 digits)
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 mr-2 text-primary flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span>
-                      The barcode number is usually printed directly below the
-                      barcode lines
-                    </span>
-                  </li>
-                </>
-              )}
-            </ul>
-          </div>
-        </PageSection>
+          <PageSection
+            title={
+              activeTab === "camera"
+                ? "Tips for Better Scanning"
+                : "Tips for Finding Barcodes"
+            }
+            className="mt-0"
+          >
+            <div className="rounded-lg border bg-card p-6">
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                {activeTab === "camera" ? (
+                  <>
+                    <li className="flex items-start">
+                      <svg
+                        className="h-5 w-5 mr-2 text-primary flex-shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span>
+                        Ensure good lighting for better barcode detection
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg
+                        className="h-5 w-5 mr-2 text-primary flex-shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span>
+                        Hold the camera steady and position the barcode within the
+                        frame
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg
+                        className="h-5 w-5 mr-2 text-primary flex-shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span>
+                        If scanning fails, try switching to manual entry mode
+                      </span>
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li className="flex items-start">
+                      <svg
+                        className="h-5 w-5 mr-2 text-primary flex-shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span>
+                        Barcodes are typically found on the back or bottom of
+                        product packaging
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg
+                        className="h-5 w-5 mr-2 text-primary flex-shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span>
+                        Most food products use EAN-13 barcodes (13 digits) or
+                        UPC-A (12 digits)
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <svg
+                        className="h-5 w-5 mr-2 text-primary flex-shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span>
+                        The barcode number is usually printed directly below the
+                        barcode lines
+                      </span>
+                    </li>
+                  </>
+                )}
+              </ul>
+            </div>
+          </PageSection>
+        </div>
       </div>
     </>
   );
