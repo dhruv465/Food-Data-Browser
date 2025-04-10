@@ -377,36 +377,78 @@ const CameraBarcodeScanner = ({ className, onBarcodeDetected, ...props }) => {
 
       {/* Detected barcode result */}
       {detectedBarcode && (
-        <div className="rounded-lg border bg-card p-4 space-y-3">
+        <div className="rounded-lg border-2 border-primary bg-card p-6 space-y-4 animate-in zoom-in-95">
           <div className="flex justify-between items-center">
-            <h3 className="font-medium">Barcode Detected</h3>
+            <div className="flex items-center space-x-2">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-5 w-5 text-primary" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+              >
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+              </svg>
+              <h3 className="font-semibold text-lg">Barcode Scanned Successfully</h3>
+            </div>
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={resetScanning}
             >
-              Scan Again
+              Scan Another
             </Button>
           </div>
           
-          <div className="p-3 bg-muted rounded-md">
-            <p className="font-mono text-center text-lg">{detectedBarcode}</p>
+          <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+            <p className="font-mono text-center text-xl font-bold tracking-wider">
+              {detectedBarcode}
+            </p>
           </div>
           
-          <BarcodeImage barcode={detectedBarcode} className="my-2" />
+          <BarcodeImage 
+            barcode={detectedBarcode} 
+            className="my-4 mx-auto border rounded-lg p-2 bg-white" 
+          />
           
-          <Button onClick={navigateToProduct} className="w-full">
-            View Product Details
-          </Button>
+          <div className="flex space-x-3">
+            <Button 
+              variant="outline" 
+              onClick={resetScanning}
+              className="flex-1"
+            >
+              Scan Again
+            </Button>
+            <Button 
+              onClick={navigateToProduct} 
+              className="flex-1"
+            >
+              View Product
+            </Button>
+          </div>
         </div>
       )}
 
       {/* Instructions */}
       {isCameraActive && !detectedBarcode && (
-        <div className="text-center text-sm text-muted-foreground mt-2">
-          <p>{isScanning 
-            ? "Just point your camera at a barcode - it will scan automatically" 
-            : "Scanning paused. Tap 'Resume' to continue scanning."}</p>
+        <div className={cn(
+          "text-center p-3 rounded-lg mt-2 transition-colors",
+          isScanning ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+        )}>
+          <p className="flex items-center justify-center gap-2 text-sm font-medium">
+            {isScanning ? (
+              <>
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+                Point camera at barcode - scanning automatically
+              </>
+            ) : (
+              "Scanning paused. Tap 'Resume' to continue"
+            )}
+          </p>
         </div>
       )}
     </div>
