@@ -179,7 +179,7 @@ const BarcodeScanner = ({ className, ...props }) => {
 
               <Button
                 type="submit"
-                className="px-6 py-3.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
+                className="px-6 py-6 mt-0.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
                 disabled={isLoading}
               >
                 {isLoading ? (
