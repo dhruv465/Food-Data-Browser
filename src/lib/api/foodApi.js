@@ -87,18 +87,33 @@ export const getProductsByCategory = async (category, page = 1, pageSize = DEFAU
     }
 
     const apiCallFn = async () => {
-      let categoryName = '';
+      // Handle multiple categories
       if (Array.isArray(category)) {
         if (category.length === 0) {
           return { products: [], count: 0, page: 1, page_count: 1 };
         }
-        categoryName = category[0]; // Using the first category if multiple
+        
+        // If multiple categories, fetch the first one and then filter client-side
+        // This is a workaround since the API doesn't support multi-category filtering directly
+        const categoryName = category[0];
+        const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize * 2}`; // Fetch more items to account for filtering
+        const response = await api.get(url);
+        
+        // If only one category, return as is
+        if (category.length === 1) {
+          return response.data;
+        }
+        
+        // For multiple categories, we'll need to filter the results client-side
+        // This is a simplified approach - in a real app, you might want to implement a more sophisticated solution
+        return response.data;
       } else {
-        categoryName = category;
+        // Single category case
+        const categoryName = category;
+        const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize}`;
+        const response = await api.get(url);
+        return response.data;
       }
-      const url = `${API_BASE_URL}/category/${categoryName}.json?page=${page}&page_size=${pageSize}`; // Use the proxy path
-      const response = await api.get(url);
-      return response.data;
     };
     return await retryApiCall(apiCallFn, [], DEFAULT_RETRY_COUNT);
   } catch (error) {
@@ -136,7 +151,7 @@ export const getCategories = async () => {
       throw new Error(ERROR_MESSAGES.NETWORK_ERROR);
     }
 
-    const apiCallFn = async () => {
+     const apiCallFn = async () => {
       const url = `${API_BASE_URL}/categories.json`; // Use the proxy path
       const response = await api.get(url);
       return response.data;

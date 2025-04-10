@@ -1,23 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { PageHeader, PageContent, PageSection } from '../components/ui/layout';
-import BarcodeScanner from '../components/product/barcode-scanner';
-import CameraBarcodeScanner from '../components/product/camera-barcode-scanner';
-import { Button } from '../components/ui/button';
-import { useIsMobile } from '../hooks/use-mobile';
-import { useNavigate } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import BarcodeScanner from "../components/product/barcode-scanner";
+import CameraBarcodeScanner from "../components/product/camera-barcode-scanner";
+import { PageHeader, PageSection } from "../components/ui/layout";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 
-/**
- * BarcodePage component - Redesigned barcode search page with camera scanning
- * 
- * @returns {JSX.Element} - BarcodePage component
- */
 const BarcodePage = () => {
-  const [activeTab, setActiveTab] = useState('camera'); // Default to camera mode
+  const [activeTab, setActiveTab] = useState("camera"); // Default to camera mode
   const [isCameraSupported, setIsCameraSupported] = useState(true);
   const [scanSuccess, setScanSuccess] = useState(false);
-  const [lastScannedBarcode, setLastScannedBarcode] = useState('');
-  const isMobile = useIsMobile();
+  const [lastScannedBarcode, setLastScannedBarcode] = useState("");
   const navigate = useNavigate();
 
   // Check if camera is supported
@@ -29,15 +26,15 @@ const BarcodePage = () => {
         } else {
           setIsCameraSupported(false);
           // Fall back to manual entry if camera not supported
-          setActiveTab('manual');
+          setActiveTab("manual");
         }
       } catch (error) {
-        console.error('Error checking camera support:', error);
+        console.error("Error checking camera support:", error);
         setIsCameraSupported(false);
-        setActiveTab('manual');
+        setActiveTab("manual");
       }
     };
-    
+
     checkCameraSupport();
   }, []);
 
@@ -46,7 +43,7 @@ const BarcodePage = () => {
     if (barcode) {
       setLastScannedBarcode(barcode);
       setScanSuccess(true);
-      
+
       // Show success animation briefly before navigating
       setTimeout(() => {
         navigate(`/product/${barcode}`);
@@ -60,43 +57,53 @@ const BarcodePage = () => {
         title="Barcode Search"
         description="Find detailed nutritional information by scanning or entering a product barcode."
       />
-      
-      <div className="max-w-xl mx-auto">
-          {/* Success animation overlay */}
-          {scanSuccess && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-sm">
-              <div className="text-center space-y-6 p-8 rounded-xl bg-card border-2 border-primary shadow-xl animate-in zoom-in-95 duration-200">
-                <div className="h-20 w-20 rounded-full bg-primary/10 mx-auto flex items-center justify-center animate-in zoom-in-95">
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className="h-10 w-10 text-primary" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                  </svg>
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-bold tracking-tight">Barcode Scanned!</h3>
-                  <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
-                    <p className="font-mono text-lg font-bold tracking-wider">
-                      {lastScannedBarcode}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-muted-foreground animate-pulse">
-                  Loading product details...
-                </p>
+
+      <div className="max-w-xl mx-auto mt-4">
+        {/* Success animation overlay */}
+        {scanSuccess && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-sm">
+            <div className="text-center space-y-6 p-8 rounded-xl bg-card border-2 border-primary shadow-xl animate-in zoom-in-95 duration-200">
+              <div className="h-20 w-20 rounded-full bg-primary/10 mx-auto flex items-center justify-center animate-in zoom-in-95">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-10 w-10 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
               </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold tracking-tight">
+                  Barcode Scanned!
+                </h3>
+                <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
+                  <p className="font-mono text-lg font-bold tracking-wider">
+                    {lastScannedBarcode}
+                  </p>
+                </div>
+              </div>
+              <p className="text-muted-foreground animate-pulse">
+                Loading product details...
+              </p>
             </div>
-          )}
+          </div>
+        )}
 
-
-        <Tabs defaultValue={isCameraSupported ? "camera" : "manual"} value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs
+          defaultValue={isCameraSupported ? "camera" : "manual"}
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="camera" disabled={!isCameraSupported} className="flex items-center">
+            <TabsTrigger
+              value="camera"
+              disabled={!isCameraSupported}
+              className="flex items-center"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4 mr-2"
@@ -141,9 +148,11 @@ const BarcodePage = () => {
           <div className="relative">
             <TabsContent value="camera" className="space-y-4">
               <div className="rounded-lg border overflow-hidden">
-                <CameraBarcodeScanner onBarcodeDetected={handleBarcodeDetected} />
+                <CameraBarcodeScanner
+                  onBarcodeDetected={handleBarcodeDetected}
+                />
               </div>
-              
+
               {/* Camera not available message */}
               {!isCameraSupported && (
                 <div className="p-4 border rounded-md bg-amber-50 text-amber-800">
@@ -154,7 +163,7 @@ const BarcodePage = () => {
                 </div>
               )}
             </TabsContent>
-            
+
             <TabsContent value="manual">
               <div className="rounded-lg border p-4">
                 <BarcodeScanner />
@@ -162,74 +171,160 @@ const BarcodePage = () => {
             </TabsContent>
           </div>
         </Tabs>
-        
+
         <PageSection title="About Barcode Search" className="mt-8">
           <div className="rounded-lg border bg-card p-6">
             <p className="text-muted-foreground mb-4">
-              Barcode search allows you to quickly find specific products in our database. 
-              {activeTab === 'camera' ? (
+              Barcode search allows you to quickly find specific products in our
+              database.
+              {activeTab === "camera" ? (
                 <>
-                  Simply position the product barcode within the camera frame and we'll 
-                  automatically detect and look up the product information.
+                  Simply position the product barcode within the camera frame
+                  and we'll automatically detect and look up the product
+                  information.
                 </>
               ) : (
                 <>
-                  Simply enter the product's barcode (typically 8-14 digits found under the barcode on packaging) 
-                  and we'll retrieve all available information.
+                  Simply enter the product's barcode (typically 8-14 digits
+                  found under the barcode on packaging) and we'll retrieve all
+                  available information.
                 </>
               )}
             </p>
             <p className="text-muted-foreground">
-              This feature is perfect for checking nutritional information while shopping 
-              or to quickly look up products you have at home.
+              This feature is perfect for checking nutritional information while
+              shopping or to quickly look up products you have at home.
             </p>
           </div>
         </PageSection>
 
         {/* Tips for scanning - always show but with different content based on active tab */}
-        <PageSection title={activeTab === 'camera' ? "Tips for Better Scanning" : "Tips for Finding Barcodes"} className="mt-4">
+        <PageSection
+          title={
+            activeTab === "camera"
+              ? "Tips for Better Scanning"
+              : "Tips for Finding Barcodes"
+          }
+          className="mt-4"
+        >
           <div className="rounded-lg border bg-card p-6">
             <ul className="space-y-2 text-sm text-muted-foreground">
-              {activeTab === 'camera' ? (
+              {activeTab === "camera" ? (
                 <>
                   <li className="flex items-start">
-                    <svg className="h-5 w-5 mr-2 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="h-5 w-5 mr-2 text-primary flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
-                    <span>Ensure good lighting for better barcode detection</span>
+                    <span>
+                      Ensure good lighting for better barcode detection
+                    </span>
                   </li>
                   <li className="flex items-start">
-                    <svg className="h-5 w-5 mr-2 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="h-5 w-5 mr-2 text-primary flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
-                    <span>Hold the camera steady and position the barcode within the frame</span>
+                    <span>
+                      Hold the camera steady and position the barcode within the
+                      frame
+                    </span>
                   </li>
                   <li className="flex items-start">
-                    <svg className="h-5 w-5 mr-2 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="h-5 w-5 mr-2 text-primary flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
-                    <span>If scanning fails, try switching to manual entry mode</span>
+                    <span>
+                      If scanning fails, try switching to manual entry mode
+                    </span>
                   </li>
                 </>
               ) : (
                 <>
                   <li className="flex items-start">
-                    <svg className="h-5 w-5 mr-2 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="h-5 w-5 mr-2 text-primary flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
-                    <span>Barcodes are typically found on the back or bottom of product packaging</span>
+                    <span>
+                      Barcodes are typically found on the back or bottom of
+                      product packaging
+                    </span>
                   </li>
                   <li className="flex items-start">
-                    <svg className="h-5 w-5 mr-2 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="h-5 w-5 mr-2 text-primary flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
-                    <span>Most food products use EAN-13 barcodes (13 digits) or UPC-A (12 digits)</span>
+                    <span>
+                      Most food products use EAN-13 barcodes (13 digits) or
+                      UPC-A (12 digits)
+                    </span>
                   </li>
                   <li className="flex items-start">
-                    <svg className="h-5 w-5 mr-2 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="h-5 w-5 mr-2 text-primary flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
-                    <span>The barcode number is usually printed directly below the barcode lines</span>
+                    <span>
+                      The barcode number is usually printed directly below the
+                      barcode lines
+                    </span>
                   </li>
                 </>
               )}

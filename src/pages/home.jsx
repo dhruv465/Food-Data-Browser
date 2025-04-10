@@ -76,14 +76,13 @@ const Home = () => {
       const { sugar, calories, protein } = activeFilters.nutrition;
       products = products.filter((product) => {
         const nutriments = product.nutriments || {};
+        
+        // Check if any nutritional value exceeds the filter threshold
         if (sugar !== undefined && nutriments.sugars_100g > sugar) return false;
-        if (calories !== undefined && nutriments.energy_kcal_100g <= calories)
-          return true;
-        if (protein !== undefined && nutriments.proteins_100g <= protein)
-          return true;
-        return (
-          sugar === undefined && calories === undefined && protein === undefined
-        );
+        if (calories !== undefined && nutriments.energy_kcal_100g > calories) return false;
+        if (protein !== undefined && nutriments.proteins_100g > protein) return false;
+        
+        return true;
       });
     }
 
