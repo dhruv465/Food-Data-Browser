@@ -95,7 +95,7 @@ const BarcodeScanner = ({ className, ...props }) => {
 
         <div className="relative space-y-6">
           <div className="space-y-1">
-            <h2 className="text-2xl font-semibold tracking-tight">
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground">
               Barcode Search
             </h2>
             <p className="text-muted-foreground">
@@ -104,12 +104,49 @@ const BarcodeScanner = ({ className, ...props }) => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex gap-2">
-              <div className="relative flex-1 group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-muted-foreground group-focus-within:text-primary"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              <input
+                id="barcode-input"
+                type="text"
+                value={barcode}
+                onChange={handleChange}
+                placeholder="Enter barcode number..."
+                className={cn(
+                  "w-full pl-10 pr-10 py-3.5 border-0 rounded-xl",
+                  "bg-background/80 dark:bg-background/40 backdrop-blur-sm",
+                  "text-foreground placeholder:text-muted-foreground/60",
+                  "focus:outline-none focus:ring-2 focus:ring-primary/20",
+                  "transition-all duration-200",
+                  "border border-input hover:border-primary/50",
+                  !isValid && "ring-2 ring-destructive/20"
+                )}
+                aria-invalid={!isValid}
+                aria-describedby={!isValid ? "barcode-error" : undefined}
+              />
+              {barcode && (
+                <button
+                  onClick={() => setBarcode("")}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-primary/60 group-focus-within:text-primary"
+                    className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors duration-200"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -118,71 +155,36 @@ const BarcodeScanner = ({ className, ...props }) => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+              {!isValid && (
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-destructive"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
                     />
                   </svg>
                 </div>
-                <input
-                  id="barcode-input"
-                  type="text"
-                  value={barcode}
-                  onChange={handleChange}
-                  placeholder="Enter barcode number..."
-                  className={cn(
-                    "w-full pl-10 pr-10 py-3.5 border-0 rounded-xl bg-white/80 backdrop-blur-sm",
-                    "focus:outline-none focus:ring-2 focus:ring-primary/20",
-                    "placeholder:text-muted-foreground/60",
-                    "transition-all duration-200",
-                    !isValid && "ring-2 ring-destructive/20"
-                  )}
-                  aria-invalid={!isValid}
-                  aria-describedby={!isValid ? "barcode-error" : undefined}
-                />
-                {barcode && (
-                  <button
-                    onClick={() => setBarcode("")}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-primary/40 hover:text-primary/60"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                )}
-                {!isValid && (
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-destructive"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                )}
-              </div>
+              )}
+            </div>
 
-              <Button
-                type="submit"
-                className="px-6 py-6 mt-0.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
-                disabled={isLoading}
-              >
-                {isLoading ? (
+            <Button
+              type="submit"
+              className="w-full px-6 py-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
                   <svg
                     className="animate-spin h-5 w-5"
                     xmlns="http://www.w3.org/2000/svg"
@@ -203,24 +205,12 @@ const BarcodeScanner = ({ className, ...props }) => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                )}
-              </Button>
-            </div>
+                  <span>Searching...</span>
+                </div>
+              ) : (
+                "Search"
+              )}
+            </Button>
 
             {!isValid && (
               <p
@@ -252,7 +242,7 @@ const BarcodeScanner = ({ className, ...props }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Example Barcodes */}
             <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10">
-              <h3 className="text-lg font-medium mb-2">
+              <h3 className="text-lg font-medium mb-2 text-foreground">
                 Try these example barcodes
               </h3>
               <div className="space-y-1">
@@ -264,7 +254,7 @@ const BarcodeScanner = ({ className, ...props }) => {
                   <button
                     key={item.code}
                     onClick={() => setBarcode(item.code)}
-                    className="w-full flex items-center justify-between py-2 px-3 rounded-lg hover:bg-white/80 transition-colors duration-200"
+                    className="w-full flex items-center justify-between py-2 px-3 rounded-lg hover:bg-background/80 dark:hover:bg-background/40 transition-colors duration-200"
                   >
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-primary">
@@ -296,7 +286,7 @@ const BarcodeScanner = ({ className, ...props }) => {
             {/* Barcode Preview Section */}
             <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium">Barcode Preview</h3>
+                <h3 className="text-lg font-medium text-foreground">Barcode Preview</h3>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
                     Format: EAN-13
@@ -307,7 +297,7 @@ const BarcodeScanner = ({ className, ...props }) => {
                   </span>
                 </div>
               </div>
-              <div className="p-4 rounded-xl bg-white/80 backdrop-blur-sm border border-primary/10">
+              <div className="p-4 rounded-xl bg-background/80 dark:bg-background/40 backdrop-blur-sm border border-primary/10">
                 <BarcodeImage
                   barcode={barcode.trim()}
                   format="EAN13"
@@ -320,7 +310,7 @@ const BarcodeScanner = ({ className, ...props }) => {
         ) : (
           /* Example Barcodes (when no preview) */
           <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10">
-            <h3 className="text-lg font-medium mb-2">
+            <h3 className="text-lg font-medium mb-2 text-foreground">
               Try these example barcodes
             </h3>
             <div className="space-y-1">
@@ -332,7 +322,7 @@ const BarcodeScanner = ({ className, ...props }) => {
                 <button
                   key={item.code}
                   onClick={() => setBarcode(item.code)}
-                  className="w-full flex items-center justify-between py-2 px-3 rounded-lg hover:bg-white/80 transition-colors duration-200"
+                  className="w-full flex items-center justify-between py-2 px-3 rounded-lg hover:bg-background/80 dark:hover:bg-background/40 transition-colors duration-200"
                 >
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-primary">{item.code}</span>

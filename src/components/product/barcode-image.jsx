@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import JsBarcode from "jsbarcode";
 import { cn } from "../../lib/utils";
+import { useTheme } from "../../lib/theme-context";
 
 /**
  * BarcodeImage component - Renders a barcode image from a barcode number
@@ -23,6 +24,7 @@ const BarcodeImage = ({
   ...props
 }) => {
   const barcodeRef = useRef(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (barcodeRef.current && barcode) {
@@ -36,12 +38,13 @@ const BarcodeImage = ({
           fontSize: fontSize,
           margin: 10,
           background: "transparent",
+          lineColor: theme === "dark" ? "#ffffff" : "#000000",
         });
       } catch (error) {
         console.error("Error generating barcode:", error);
       }
     }
-  }, [barcode, format, width, height, displayValue, fontSize]);
+  }, [barcode, format, width, height, displayValue, fontSize, theme]);
 
   if (!barcode) {
     return (
