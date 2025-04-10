@@ -161,6 +161,9 @@ Total time: Approximately 16 hours
 ## Getting Started
 
 1. Clone the repository
+```bash
+    git clone https://github.com/dhruv465/Food-Data-Browser.git
+```
 2. Install dependencies:
    ```bash
    npm install
