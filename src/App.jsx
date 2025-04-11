@@ -8,7 +8,6 @@ import "./index.css"; // Global styles
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import("./pages/home"));
-const SearchPage = lazy(() => import("./pages/search"));
 const BarcodePage = lazy(() => import("./pages/barcode"));
 const ProductDetailPage = lazy(() => import("./pages/product-detail"));
 
@@ -70,7 +69,6 @@ function App() {
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
-                  <Route path="/search" element={<SearchPage />} />
                   <Route path="/barcode" element={<BarcodePage />} />
                   <Route path="/product/:id" element={<ProductDetailPage />} />
                 </Routes>

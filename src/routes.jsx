@@ -4,7 +4,7 @@ import AppLayout from './components/ui/app-layout';
 import BarcodePage from './pages/barcode';
 import HomePage from './pages/home';
 import ProductDetailPage from './pages/product-detail';
-import SearchPage from './pages/search';
+
 /**
  * AppRoutes component - Application routing configuration
  * 
@@ -18,10 +18,6 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <HomePage />,
-      },
-      {
-        path: 'search',
-        element: <SearchPage />,
       },
       {
         path: 'product/:id',
